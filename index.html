@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daily Exercise Tracker</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header>
+    <h1>Daily Exercise Tracker</h1>
+  </header>
+
+  <section id="dashboard">
+    <h2>Progress Overview</h2>
+    <canvas id="progressChart"></canvas>
+    <div id="maxRepsDisplay"></div>
+    <div id="nextTestReminder"></div>
+  </section>
+
+  <section id="controls">
+    <button onclick="openMaxRepsEntry()">Update Max Reps</button>
+    <button onclick="openSchedule()">Set Workout Schedule</button>
+  </section>
+
+  <!-- Max Reps Modal -->
+  <div id="modal" class="hidden">
+    <div id="modalContent">
+      <h3>Update Max Reps</h3>
+      <form id="maxRepsForm">
+        <label>Push-Ups: <input type="number" name="pushups" min="0"></label><br/>
+        <label>Pull-Ups: <input type="number" name="pullups" min="0"></label><br/>
+        <label>Squats: <input type="number" name="squats" min="0"></label><br/>
+        <label>Toe-To-Bar: <input type="number" name="toeToBar" min="0"></label><br/>
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
+  <div id="scheduleModal" class="hidden">
+    <div id="modalContent">
+      <h3>Set Workout Schedule</h3>
+      <form id="scheduleForm">
+        <label>
+          <input type="radio" name="scheduleType" value="daily" checked>
+          Daily
+        </label>
+        <label>
+          <input type="radio" name="scheduleType" value="two-day">
+          Two-Day Split
+        </label>
+
+        <div id="daySplit">
+          <h4>Day 1 Exercises</h4>
+          <label><input type="checkbox" name="day1" value="pushups"> Push-Ups</label>
+          <label><input type="checkbox" name="day1" value="pullups"> Pull-Ups</label>
+          <label><input type="checkbox" name="day1" value="squats"> Squats</label>
+          <label><input type="checkbox" name="day1" value="toeToBar"> Toe-To-Bar</label>
+
+          <h4>Day 2 Exercises</h4>
+          <label><input type="checkbox" name="day2" value="pushups"> Push-Ups</label>
+          <label><input type="checkbox" name="day2" value="pullups"> Pull-Ups</label>
+          <label><input type="checkbox" name="day2" value="squats"> Squats</label>
+          <label><input type="checkbox" name="day2" value="toeToBar"> Toe-To-Bar</label>
+        </div>
+
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeSchedule()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

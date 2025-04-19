@@ -1,0 +1,46 @@
+body {
+  font-family: sans-serif;
+  margin: 1rem;
+  background: #f5f5f5;
+}
+
+header h1 {
+  text-align: center;
+}
+
+section {
+  margin-top: 2rem;
+}
+
+button {
+  margin: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+#modal, #scheduleModal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#modalContent {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px black;
+  width: 90%;
+  max-width: 400px;
+}
+
+#modal label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
