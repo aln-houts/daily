@@ -3,18 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Max Reps</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Max Reps Over Time</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .max-reps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .max-rep-card {
+      background: #eef2f5;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    #performMaxSection {
+      text-align: center;
+      margin: 2rem 0;
+    }
+    #maxEntrySection {
+      background: #fff;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 0 5px #ccc;
+    }
+    #maxEntrySection.hidden {
+      display: none;
+    }
+    #maxRepsCharts section {
+      margin-bottom: 2rem;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Max Reps Over Time</h1>
     <button onclick="location.href='index.html'">Workout</button>
+    <button onclick="location.href='schedule.html'">Schedule</button>
   </header>
+
+  <section id="maxRepsCards" class="max-reps-grid"></section>
+
+  <div id="performMaxSection">
+    <p>No max reps recorded yet.</p>
+    <button onclick="openMaxEntry()">Perform Max Reps</button>
+  </div>
 
   <section id="maxRepsCharts"></section>
 
+  <section id="maxEntrySection" class="hidden">
+    <h2>Enter Max Reps</h2>
+    <form id="maxEntryForm">
+      <div id="maxEntryInputs"></div>
+      <button type="submit">Save Max Reps</button>
+      <button type="button" onclick="closeMaxEntry()">Cancel</button>
+    </form>
+  </section>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="max-reps.js"></script>
+  <script>
+    const exercises = ["pushups", "pullups", "squats", "toeToBar"];
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+    }
+
+    function loadMaxRepsCards() {
+      const container = document.getElementById('maxRepsCards');
+      container.innerHTML = '';
+      const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+      exercises.forEach(ex => {
+        const entries = history[ex] || [];
+        const latest = entries.length ? entries[entries.length - 1].value : 0;
+        const card = document.createElement('div');
+        card.className = 'max-rep-card';
+        card.innerHTML = `<h4>Max ${capitalize(ex)}</h4><p>${latest}</p>`;
+        container.appendChild(card);
+      });
+    }
+
+    function loadMaxRepsCharts() {
+      const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+      const chartsSection = document.getElementById('maxRepsCharts');
+      chartsSection.innerHTML = '';
+      exercises.forEach(ex => {
+        const section = document.createElement('section');
+        section.innerHTML = `<h4>${capitalize(ex)}</h4><canvas id="chart_${ex}"></canvas>`;
+        chartsSection.appendChild(section);
+        const ctx = document.getElementById(`chart_${ex}`);
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: (history[ex] || []).map(e => e.date),
+            datasets: [{ label: 'Max Reps', data: (history[ex] || []).map(e => e.value) }]
+          }
+        });
+      });
+    }
+
+    function openMaxEntry() {
+      document.getElementById('maxEntrySection').classList.remove('hidden');
+      const inputs = document.getElementById('maxEntryInputs');
+      inputs.innerHTML = '';
+      exercises.forEach(ex => {
+        inputs.innerHTML += `
+          <label>${capitalize(ex)}: <input type="number" name="${ex}" min="1" required></label><br/>`;
+      });
+    }
+
+    function closeMaxEntry() {
+      document.getElementById('maxEntrySection').classList.add('hidden');
+    }
+
+    document.getElementById('maxEntryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const today = new Date().toISOString().split('T')[0];
+      const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+      exercises.forEach(ex => {
+        const val = Number(form[ex].value);
+        if (!history[ex]) history[ex] = [];
+        history[ex].push({ date: today, value: val });
+      });
+      localStorage.setItem('maxRepHistory', JSON.stringify(history));
+      closeMaxEntry();
+      updateDisplay();
+    });
+
+    function updateDisplay() {
+      const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+      const hasAny = exercises.some(ex => (history[ex] || []).length > 0);
+      document.getElementById('performMaxSection').style.display = hasAny ? 'none' : 'block';
+      document.getElementById('maxRepsCards').style.display = hasAny ? 'grid' : 'none';
+      document.getElementById('maxRepsCharts').style.display = hasAny ? 'block' : 'none';
+      if (hasAny) {
+        loadMaxRepsCards();
+        loadMaxRepsCharts();
+      }
+    }
+
+    window.onload = updateDisplay;
+  </script>
 </body>
 </html>
