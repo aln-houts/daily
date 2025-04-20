@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Max Reps Over Time</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
   <style>
     .max-reps-grid {
       display: grid;
@@ -12,22 +12,19 @@
       gap: 1rem;
       margin: 1rem 0;
     }
-    .max-rep-card {
+    .max-rep-card, .max-rep-chart {
       background: #eef2f5;
       border-radius: 8px;
       padding: 1rem;
       text-align: center;
       cursor: pointer;
     }
-    #maxEntrySection,
-    #maxRepsCharts {
-      margin-bottom: 1.5rem;
-    }
     #maxEntrySection {
       background: #fff;
       padding: 1rem;
       border-radius: 8px;
       box-shadow: 0 0 5px #ccc;
+      margin-bottom: 1.5rem;
     }
     #maxEntrySection.hidden {
       display: none;
@@ -48,6 +45,9 @@
     button:hover {
       background: #0056b3;
     }
+    h4 {
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -57,12 +57,10 @@
     <button onclick="location.href='schedule.html'">Schedule</button>
   </header>
 
-  <!-- Top cards -->
   <section id="performMaxSection">
     <div id="maxRepsCards" class="max-reps-grid"></div>
   </section>
 
-  <!-- Per‑exercise entry -->
   <section id="maxEntrySection" class="hidden">
     <h2>Enter Max Reps for <span id="currentExercise"></span></h2>
     <form id="maxEntryForm">
@@ -72,98 +70,15 @@
     </form>
   </section>
 
-  <!-- Charts -->
-  <section id="maxRepsCharts"></section>
+  <section id="maxRepsCharts" class="max-reps-grid">
+    <div class="max-rep-chart"><h4>Pushups</h4><canvas id="chart_pushups"></canvas></div>
+    <div class="max-rep-chart"><h4>Pullups</h4><canvas id="chart_pullups"></canvas></div>
+    <div class="max-rep-chart"><h4>Squats</h4><canvas id="chart_squats"></canvas></div>
+    <div class="max-rep-chart"><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></div>
+  </section>
 
-  <!-- Chart.js UMD bundle -->
+  <!-- UMD build of Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
-
-  <script>
-    const exercises = ["pushups","pullups","squats","toeToBar"];
-
-    function capitalize(s){
-      return s.charAt(0).toUpperCase()+s.slice(1).replace(/([A-Z])/g,' $1');
-    }
-
-    function loadMaxRepsCards(){
-      const container = document.getElementById('maxRepsCards');
-      container.innerHTML = '';
-      const history = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
-      exercises.forEach(ex=>{
-        const arr = history[ex]||[], latest = arr.length?arr[arr.length-1].value:0;
-        const card = document.createElement('div');
-        card.className = 'max-rep-card';
-        card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
-        card.onclick = ()=> openMaxEntry(ex);
-        container.appendChild(card);
-      });
-    }
-
-    function loadMaxRepsCharts(){
-      const history = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
-      const chartsSection = document.getElementById('maxRepsCharts');
-      chartsSection.innerHTML = '';
-      exercises.forEach(ex=>{
-        // build a section+canvas for every exercise
-        const sec = document.createElement('section');
-        sec.innerHTML = `<h4>${capitalize(ex)}</h4><canvas id="chart_${ex}"></canvas>`;
-        chartsSection.appendChild(sec);
-
-        const canvas = document.getElementById(`chart_${ex}`);
-        const ctx = canvas.getContext('2d');
-        const entries = history[ex]||[];
-        new Chart(ctx,{
-          type:'line',
-          data:{
-            labels: entries.map(e=>e.date),
-            datasets:[{
-              label:'Max Reps',
-              data: entries.map(e=>e.value),
-              fill:false,
-              tension:0.2
-            }]
-          },
-          options:{
-            scales:{
-              x:{ type:'category', title:{display:true,text:'Date'} },
-              y:{ beginAtZero:true, title:{display:true,text:'Reps'} }
-            }
-          }
-        });
-      });
-    }
-
-    function openMaxEntry(ex){
-      document.getElementById('currentExercise').textContent = capitalize(ex);
-      document.getElementById('maxEntryInputs').innerHTML =
-        `<label>${capitalize(ex)}: <input name="${ex}" type="number" min="1"></label>`;
-      document.getElementById('maxEntrySection').classList.remove('hidden');
-    }
-
-    function closeMaxEntry(){
-      document.getElementById('maxEntrySection').classList.add('hidden');
-    }
-
-    document.getElementById('maxEntryForm').onsubmit = e=>{
-      e.preventDefault();
-      const form = e.target;
-      const inp = form.querySelector('input[name]');
-      const ex = inp.name, val = Number(inp.value);
-      if(!val) return;
-      const today = new Date().toISOString().split('T')[0];
-      const history = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
-      (history[ex]||(history[ex]=[])).push({date:today,value:val});
-      localStorage.setItem('maxRepHistory',JSON.stringify(history));
-      closeMaxEntry();
-      updateDisplay();
-    };
-
-    function updateDisplay(){
-      loadMaxRepsCards();
-      loadMaxRepsCharts();
-    }
-
-    window.onload = updateDisplay;
-  </script>
+  <script src="max-reps.js"></script>
 </body>
 </html>

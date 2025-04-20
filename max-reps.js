@@ -1,107 +1,63 @@
-const exercises = ["pushups", "pullups", "squats", "toeToBar"];
+const exercises = ["pushups","pullups","squats","toeToBar"];
+const charts = {};
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+function capitalize(s){
+  return s.charAt(0).toUpperCase()+s.slice(1).replace(/([A-Z])/g,' $1');
 }
 
-function loadMaxRepsCards() {
+function loadMaxRepsCards(){
   const container = document.getElementById('maxRepsCards');
   container.innerHTML = '';
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-  exercises.forEach(ex => {
-    const entries = history[ex] || [];
-    const latest = entries.length ? entries[entries.length - 1].value : 0;
+  const history = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
+  exercises.forEach(ex=>{
+    const arr = history[ex]||[], latest = arr.length?arr[arr.length-1].value:0;
     const card = document.createElement('div');
-    card.className = 'max-rep-card';
-    card.dataset.exercise = ex;
-    card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
-    card.addEventListener('click', () => openMaxEntry(ex));
+    card.className='max-rep-card';
+    card.innerHTML=`<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
+    card.onclick = ()=> openMaxEntry(ex);
     container.appendChild(card);
   });
 }
 
-function loadMaxRepsCharts() {
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-  const chartsSection = document.getElementById('maxRepsCharts');
-  chartsSection.innerHTML = '';
-
-  exercises.forEach(ex => {
-    // 1) Create wrapper + canvas
-    const section = document.createElement('section');
-    section.innerHTML = `
-      <h4>${capitalize(ex)}</h4>
-      <canvas id="chart_${ex}"></canvas>
-    `;
-    chartsSection.appendChild(section);
-
-    // 2) Grab its 2D context
-    const canvas = document.getElementById(`chart_${ex}`);
-    if (!canvas) {
-      console.error('Missing canvas for', ex);
-      return;
-    }
-    const ctx = canvas.getContext('2d');
-
-    // 3) Plot (works even with empty data arrays)
-    const entries = history[ex] || [];
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: entries.map(e => e.date),
-        datasets: [{
-          label: 'Max Reps',
-          data: entries.map(e => e.value),
-          fill: false,
-          tension: 0.2
-        }]
-      },
-      options: {
-        scales: {
-          x: {
-            type: 'category',
-            title: { display: true, text: 'Date' }
-          },
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Reps' }
-          }
-        }
-      }
+function loadMaxRepsCharts(){
+  const history = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
+  exercises.forEach(ex=>{
+    const ctx = document.getElementById(`chart_${ex}`).getContext('2d');
+    const data = (history[ex]||[]).map(e=>e.value);
+    const labels = (history[ex]||[]).map(e=>e.date);
+    if(charts[ex]) charts[ex].destroy();
+    charts[ex] = new Chart(ctx,{
+      type:'line',
+      data:{ labels, datasets:[{ label:'Max Reps', data, fill:false, tension:0.2 }] },
+      options:{ scales:{ x:{ type:'category' }, y:{ beginAtZero:true } } }
     });
   });
 }
 
-function openMaxEntry(ex) {
-  document.getElementById('currentExercise').textContent = capitalize(ex);
-  const inputs = document.getElementById('maxEntryInputs');
-  inputs.innerHTML = `<label>${capitalize(ex)}: <input type="number" name="${ex}" min="1"></label>`;
+function openMaxEntry(ex){
+  document.getElementById('currentExercise').textContent=capitalize(ex);
+  document.getElementById('maxEntryInputs').innerHTML=
+    `<label>${capitalize(ex)}: <input name="${ex}" type="number" min="1"></label>`;
   document.getElementById('maxEntrySection').classList.remove('hidden');
 }
 
-function closeMaxEntry() {
+function closeMaxEntry(){
   document.getElementById('maxEntrySection').classList.add('hidden');
 }
 
-document.getElementById('maxEntryForm').addEventListener('submit', function(e) {
+document.getElementById('maxEntryForm').onsubmit = e=>{
   e.preventDefault();
-  const form = e.target;
-  const ex = form.querySelector('input[name]').name;
-  const val = Number(form[ex].value);
-  if (!val) return;
-  const today = new Date().toISOString().split('T')[0];
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-  if (!history[ex]) history[ex] = [];
-  history[ex].push({ date: today, value: val });
-  localStorage.setItem('maxRepHistory', JSON.stringify(history));
-  closeMaxEntry();
-  updateDisplay();
-});
+  const f=e.target, inp=f.querySelector('input[name]'), ex=inp.name, val=Number(inp.value);
+  if(!val) return;
+  const today=new Date().toISOString().split('T')[0];
+  const h=JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
+  (h[ex]||(h[ex]=[])).push({date:today,value:val});
+  localStorage.setItem('maxRepHistory',JSON.stringify(h));
+  closeMaxEntry(); updateDisplay();
+};
 
-function updateDisplay() {
-  loadMaxRepsCards();
-  loadMaxRepsCharts();
+function updateDisplay(){
+  loadMaxRepsCards(); loadMaxRepsCharts();
 }
 
-// kick it all off
 window.onload = updateDisplay;
-                                                         
