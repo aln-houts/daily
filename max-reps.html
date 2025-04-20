@@ -17,23 +17,36 @@
       border-radius: 8px;
       padding: 1rem;
       text-align: center;
+      cursor: pointer;
     }
-    #performMaxSection {
-      text-align: center;
-      margin: 2rem 0;
+    #maxEntrySection,
+    #maxRepsCharts {
+      margin-bottom: 1.5rem;
     }
     #maxEntrySection {
       background: #fff;
       padding: 1rem;
-      margin: 1rem 0;
       border-radius: 8px;
       box-shadow: 0 0 5px #ccc;
     }
     #maxEntrySection.hidden {
       display: none;
     }
-    #maxRepsCharts section {
-      margin-bottom: 2rem;
+    #maxEntryInputs label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
@@ -44,25 +57,22 @@
     <button onclick="location.href='schedule.html'">Schedule</button>
   </header>
 
-  <section id="maxRepsCards" class="max-reps-grid"></section>
-
-  <div id="performMaxSection">
-    <p>No max reps recorded yet.</p>
-    <button onclick="openMaxEntry()">Perform Max Reps</button>
-  </div>
-
-  <section id="maxRepsCharts"></section>
+  <section id="performMaxSection">
+    <div id="maxRepsCards" class="max-reps-grid"></div>
+  </section>
 
   <section id="maxEntrySection" class="hidden">
-    <h2>Enter Max Reps</h2>
+    <h2>Enter Max Reps for <span id="currentExercise"></span></h2>
     <form id="maxEntryForm">
       <div id="maxEntryInputs"></div>
-      <button type="submit">Save Max Reps</button>
+      <button type="submit">Save</button>
       <button type="button" onclick="closeMaxEntry()">Cancel</button>
     </form>
   </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <section id="maxRepsCharts"></section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script>
     const exercises = ["pushups", "pullups", "squats", "toeToBar"];
 
@@ -79,7 +89,9 @@
         const latest = entries.length ? entries[entries.length - 1].value : 0;
         const card = document.createElement('div');
         card.className = 'max-rep-card';
-        card.innerHTML = `<h4>Max ${capitalize(ex)}</h4><p>${latest}</p>`;
+        card.dataset.exercise = ex;
+        card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
+        card.addEventListener('click', () => openMaxEntry(ex));
         container.appendChild(card);
       });
     }
@@ -89,6 +101,8 @@
       const chartsSection = document.getElementById('maxRepsCharts');
       chartsSection.innerHTML = '';
       exercises.forEach(ex => {
+        const entries = history[ex] || [];
+        if (!entries.length) return;
         const section = document.createElement('section');
         section.innerHTML = `<h4>${capitalize(ex)}</h4><canvas id="chart_${ex}"></canvas>`;
         chartsSection.appendChild(section);
@@ -96,21 +110,18 @@
         new Chart(ctx, {
           type: 'line',
           data: {
-            labels: (history[ex] || []).map(e => e.date),
-            datasets: [{ label: 'Max Reps', data: (history[ex] || []).map(e => e.value) }]
+            labels: entries.map(e => e.date),
+            datasets: [{ label: 'Max Reps', data: entries.map(e => e.value) }]
           }
         });
       });
     }
 
-    function openMaxEntry() {
-      document.getElementById('maxEntrySection').classList.remove('hidden');
+    function openMaxEntry(ex) {
+      document.getElementById('currentExercise').textContent = capitalize(ex);
       const inputs = document.getElementById('maxEntryInputs');
-      inputs.innerHTML = '';
-      exercises.forEach(ex => {
-        inputs.innerHTML += `
-          <label>${capitalize(ex)}: <input type="number" name="${ex}" min="1" required></label><br/>`;
-      });
+      inputs.innerHTML = `<label>${capitalize(ex)}: <input type="number" name="${ex}" min="1"></label>`;
+      document.getElementById('maxEntrySection').classList.remove('hidden');
     }
 
     function closeMaxEntry() {
@@ -120,28 +131,21 @@
     document.getElementById('maxEntryForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
+      const ex = form.querySelector('input[name]').name;
+      const val = Number(form[ex].value);
+      if (!val) return;
       const today = new Date().toISOString().split('T')[0];
       const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-      exercises.forEach(ex => {
-        const val = Number(form[ex].value);
-        if (!history[ex]) history[ex] = [];
-        history[ex].push({ date: today, value: val });
-      });
+      if (!history[ex]) history[ex] = [];
+      history[ex].push({ date: today, value: val });
       localStorage.setItem('maxRepHistory', JSON.stringify(history));
       closeMaxEntry();
       updateDisplay();
     });
 
     function updateDisplay() {
-      const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-      const hasAny = exercises.some(ex => (history[ex] || []).length > 0);
-      document.getElementById('performMaxSection').style.display = hasAny ? 'none' : 'block';
-      document.getElementById('maxRepsCards').style.display = hasAny ? 'grid' : 'none';
-      document.getElementById('maxRepsCharts').style.display = hasAny ? 'block' : 'none';
-      if (hasAny) {
-        loadMaxRepsCards();
-        loadMaxRepsCharts();
-      }
+      loadMaxRepsCards();
+      loadMaxRepsCharts();
     }
 
     window.onload = updateDisplay;
