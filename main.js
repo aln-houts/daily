@@ -111,7 +111,11 @@ document.getElementById('workoutForm').addEventListener('submit', function (e) {
   allLogs[today] = log;
   localStorage.setItem('workoutLogs', JSON.stringify(allLogs));
   alert('Workout saved!');
-  document.getElementById('workoutSection').classList.add('hidden');
+  const workoutSection = document.getElementById('workoutSection');
+const form = document.getElementById('workoutForm');
+form.reset();
+form.innerHTML = '';
+workoutSection.classList.add('hidden');
 });
 
 function showMaxHistory() {
