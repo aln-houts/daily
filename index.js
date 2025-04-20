@@ -60,7 +60,8 @@ function loadWorkoutForm() {
   exercises.forEach(ex => {
     form.innerHTML += `
       <h4>${capitalize(ex)}</h4>
-      <label>Reps: <input type="number" name="${ex}_reps" /></label><br/>
+      <label>Reps per Set: <input type="number" name="${ex}_reps" min="1" /></label><br/>
+      <label>Sets: <input type="number" name="${ex}_sets" min="1" /></label><br/>
     `;
   });
 
@@ -73,8 +74,11 @@ document.getElementById('workoutForm').addEventListener('submit', function(e) {
   const today = new Date().toISOString().split('T')[0];
   const log = {};
   for (let [key, value] of formData.entries()) {
-    const exercise = key.replace('_reps', '');
-    log[exercise] = Number(value);
+    const match = key.match(/(.+)_reps|(.+)_sets/);
+    const ex = match[1] || match[2];
+    if (!log[ex]) log[ex] = {};
+    if (key.endsWith('_reps')) log[ex].reps = Number(value);
+    if (key.endsWith('_sets')) log[ex].sets = Number(value);
   }
 
   const allLogs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
@@ -88,7 +92,7 @@ function loadWorkoutGraph() {
   const data = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const labels = Object.keys(data);
   const totals = labels.map(date =>
-    Object.values(data[date]).reduce((sum, reps) => sum + reps, 0)
+    Object.values(data[date]).reduce((sum, ex) => sum + (ex.reps || 0) * (ex.sets || 1), 0)
   );
 
   const ctx = document.getElementById('workoutChart');
