@@ -19,37 +19,19 @@ function loadMaxRepsCards(){
   });
 }
 
-function loadMaxRepsCharts(){
-  const h = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
-  exercises.forEach(ex=>{
+function loadMaxRepsCharts() {
+  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+  console.log('▶ maxRepHistory:', history);
+  exercises.forEach(ex => {
+    console.log('⟳ rendering chart for', ex);
     const canvas = document.getElementById(`chart_${ex}`);
-    if(!canvas) return;
+    if (!canvas) { console.error('❌ missing canvas for', ex); return; }
     const ctx = canvas.getContext('2d');
-    const entries = h[ex]||[];
-    const labels = entries.map(e=>e.date);
-    const data = entries.map(e=>e.value);
-    if(charts[ex]) charts[ex].destroy();
-    charts[ex] = new Chart(ctx,{
-      type:'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label:'Max Reps',
-          data: data,
-          fill:false,
-          tension:0.2,
-          pointRadius:6
-        }]
-      },
-      options: {
-        scales: {
-          x: { type:'category' },
-          y: { beginAtZero:true }
-        }
-      }
-    });
+    console.log('   ctx is', ctx);
+    // … rest of your chart code …
   });
 }
+
 
 function openMaxEntry(ex){
   document.getElementById('currentExercise').textContent=capitalize(ex);
