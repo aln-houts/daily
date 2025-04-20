@@ -6,10 +6,64 @@
   <title>Schedule</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 1rem;
+    }
+    #schedulePage {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1, h3, h4 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 0.5rem 0;
+    }
     .exercise-config {
       margin-left: 1rem;
       margin-bottom: 1rem;
-      display: none;
+      padding: 0.5rem 1rem;
+      background-color: #eef2f5;
+      border-radius: 6px;
+    }
+    button[type="submit"] {
+      display: block;
+      margin: 1.5rem auto 0;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+    .max-reps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .max-rep-card {
+      background: #eef2f5;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .max-rep-card p {
+      margin: 0.25rem 0 0;
+      font-size: 1.25rem;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -17,19 +71,19 @@
   <section id="schedulePage">
     <h1>Set Workout Schedule</h1>
 
-    <div id="maxRepsInfo"></div>
-    <p><em>Tip: Aim for 80–90% of your max reps per set</em></p>
+    <div id="maxRepsInfo" class="max-reps-grid"></div>
+    <p style="text-align: center;"><em>Tip: Aim for 80–90% of your max reps per set</em></p>
 
-    <form id="scheduleForm">
+    <form id="scheduleForm" onchange="toggleDays()">
       <label><input type="radio" name="scheduleType" value="daily" checked> Daily</label>
       <label><input type="radio" name="scheduleType" value="two-day"> Two-Day Split</label>
 
-      <div>
+      <div id="day1Options">
         <h3>Day 1</h3>
         <div class="exercise-list" data-day="1"></div>
       </div>
 
-      <div>
+      <div id="day2Options">
         <h3>Day 2</h3>
         <div class="exercise-list" data-day="2"></div>
       </div>
@@ -43,12 +97,15 @@
     const maxReps = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
     const maxInfo = document.getElementById("maxRepsInfo");
 
-    // Display max reps
-    maxInfo.innerHTML = "<h4>Max Reps:</h4>";
+    // Display max reps as cards
     exercises.forEach(ex => {
       const history = maxReps[ex] || [];
       const latest = history.length ? history[history.length - 1].value : 0;
-      maxInfo.innerHTML += `<p>${capitalize(ex)}: ${latest}</p>`;
+
+      const card = document.createElement('div');
+      card.className = 'max-rep-card';
+      card.innerHTML = `<div style='min-height:3em'><h4>Max ${capitalize(ex)}</h4></div><p>${latest}</p>`;
+      maxInfo.appendChild(card);
     });
 
     // Build exercise checkboxes and config
@@ -64,9 +121,9 @@
             <input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this, '${exId}')">
             ${capitalize(ex)}
           </label>
-          <div id="${exId}" class="exercise-config">
-            <label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3" /></label><br/>
-            <label>Reps: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}" /></label>
+          <div id="${exId}" class="exercise-config" style="display:none;">
+            <label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3" /></label>
+            <label>Reps per Set: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}" /></label>
           </div>
         `;
       });
@@ -107,6 +164,12 @@
       alert("Schedule saved!");
       window.location.href = "index.html";
     });
-  </script>
+  function toggleDays() {
+  const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+  document.getElementById('day2Options').style.display = (scheduleType === 'two-day') ? 'block' : 'none';
+}
+
+toggleDays();
+</script>
 </body>
 </html>
