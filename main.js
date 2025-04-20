@@ -46,11 +46,11 @@ document.getElementById('maxRepsForm').addEventListener('submit', function (e) {
 });
 
 function openSchedule() {
-  document.getElementById('scheduleModal').classList.remove('hidden');
+  document.getElementById('scheduleSection').classList.remove('hidden');
 }
 
 function closeSchedule() {
-  document.getElementById('scheduleModal').classList.add('hidden');
+  document.getElementById('scheduleSection').classList.add('hidden');
 }
 
 document.getElementById('scheduleForm').addEventListener('submit', function (e) {
