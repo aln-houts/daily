@@ -21,6 +21,8 @@
   <section id="controls">
     <button onclick="openMaxRepsEntry()">Update Max Reps</button>
     <button onclick="openSchedule()">Set Workout Schedule</button>
+    <button onclick="startWorkout()">Start Workout</button>
+    <button onclick="showMaxHistory()">Max Rep Progress</button>
   </section>
 
   <!-- Max Reps Modal -->
@@ -72,7 +74,21 @@
     </div>
   </div>
 
+  <!-- Workout Section -->
+  <div id="workoutSection" class="hidden">
+    <h3>Today's Workout</h3>
+    <form id="workoutForm"></form>
+  </div>
+
+  <!-- Max History Section -->
+  <div id="maxHistorySection" class="hidden">
+    <h3>Max Reps Over Time</h3>
+    <canvas id="maxChart"></canvas>
+    <button onclick="closeMaxHistory()">Close</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
   <script src="main.js"></script>
 </body>
 </html>

@@ -21,10 +21,24 @@ function closeModal() {
 document.getElementById('maxRepsForm').addEventListener('submit', function (e) {
   e.preventDefault();
   const today = new Date().toISOString().split('T')[0];
-  maxReps.pushups = { value: Number(this.pushups.value), lastUpdated: today };
-  maxReps.pullups = { value: Number(this.pullups.value), lastUpdated: today };
-  maxReps.squats = { value: Number(this.squats.value), lastUpdated: today };
-  maxReps.toeToBar = { value: Number(this.toeToBar.value), lastUpdated: today };
+  const updates = {
+    pushups: Number(this.pushups.value),
+    pullups: Number(this.pullups.value),
+    squats: Number(this.squats.value),
+    toeToBar: Number(this.toeToBar.value)
+  };
+
+  for (const ex in updates) {
+    maxReps[ex] = { value: updates[ex], lastUpdated: today };
+  }
+
+  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+  for (const ex in updates) {
+    if (!history[ex]) history[ex] = [];
+    history[ex].push({ date: today, value: updates[ex] });
+  }
+  localStorage.setItem('maxRepHistory', JSON.stringify(history));
+
   closeModal();
   renderMaxReps();
   checkNextTestReminder();
@@ -50,6 +64,87 @@ document.getElementById('scheduleForm').addEventListener('submit', function (e) 
   closeSchedule();
   alert('Workout schedule saved!');
 });
+
+function startWorkout() {
+  const workoutSection = document.getElementById('workoutSection');
+  const form = document.getElementById('workoutForm');
+  form.innerHTML = '';
+
+  const schedule = JSON.parse(localStorage.getItem('workoutSchedule') || '{}');
+  const today = new Date();
+  let exercises = [];
+
+  if (schedule.type === 'daily') {
+    exercises = schedule.day1 || [];
+  } else if (schedule.type === 'two-day') {
+    const day = today.getDay();
+    exercises = (day % 2 === 0) ? schedule.day1 : schedule.day2;
+  }
+
+  if (!exercises.length) {
+    form.innerHTML = '<p>No exercises set for today.</p>';
+    workoutSection.classList.remove('hidden');
+    return;
+  }
+
+  exercises.forEach(ex => {
+    form.innerHTML += `
+      <label>${capitalize(ex)}:
+        <input type="number" name="${ex}" min="0" required>
+      </label><br/>
+    `;
+  });
+
+  form.innerHTML += `<button type="submit">Save Workout</button>`;
+  workoutSection.classList.remove('hidden');
+}
+
+document.getElementById('workoutForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const today = new Date().toISOString().split('T')[0];
+  const log = {};
+  for (const [exercise, reps] of formData.entries()) {
+    log[exercise] = Number(reps);
+  }
+  const allLogs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
+  allLogs[today] = log;
+  localStorage.setItem('workoutLogs', JSON.stringify(allLogs));
+  alert('Workout saved!');
+  document.getElementById('workoutSection').classList.add('hidden');
+});
+
+function showMaxHistory() {
+  const section = document.getElementById('maxHistorySection');
+  const ctx = document.getElementById('maxChart').getContext('2d');
+  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+  const datasets = Object.keys(history).map(ex => ({
+    label: capitalize(ex),
+    data: history[ex].map(entry => ({ x: entry.date, y: entry.value })),
+    fill: false,
+    tension: 0.2
+  }));
+
+  new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      parsing: false,
+      scales: {
+        x: { type: 'time', time: { unit: 'day' } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  section.classList.remove('hidden');
+}
+
+function closeMaxHistory() {
+  document.getElementById('maxHistorySection').classList.add('hidden');
+  document.getElementById('maxChart').replaceWith(document.getElementById('maxChart').cloneNode());
+}
 
 window.onload = () => {
   renderMaxReps();
