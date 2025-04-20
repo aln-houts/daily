@@ -11,11 +11,11 @@ function openMaxRepsEntry() {
   form.pullups.value = maxReps.pullups.value;
   form.squats.value = maxReps.squats.value;
   form.toeToBar.value = maxReps.toeToBar.value;
-  document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('maxRepsSection').classList.remove('hidden');
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.add('hidden');
+function closeMaxReps() {
+  document.getElementById('maxRepsSection').classList.add('hidden');
 }
 
 document.getElementById('maxRepsForm').addEventListener('submit', function (e) {

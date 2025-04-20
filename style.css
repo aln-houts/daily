@@ -61,3 +61,12 @@ button {
   border-radius: 8px;
   box-shadow: 0 0 5px #ccc;
 }
+
+
+#maxRepsSection {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 5px #ccc;
+}
