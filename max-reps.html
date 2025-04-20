@@ -46,6 +46,11 @@
       text-align: center;
       margin-bottom: 1rem;
     }
+    /* Ensure canvas has a fixed height */
+    #maxRepsCharts canvas {
+      width: 100% !important;
+      height: 200px !important;
+    }
     button {
       padding: 0.5rem 1rem;
       margin: 0.5rem;
@@ -87,7 +92,6 @@
     <section><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></section>
   </section>
 
-  <!-- Chart.js UMD build -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script src="max-reps.js"></script>
 </body>
