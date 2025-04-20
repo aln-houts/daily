@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section id="schedulePage">
+    <h1>Set Workout Schedule</h1>
+    <form id="scheduleForm">
+      <label><input type="radio" name="scheduleType" value="daily" checked> Daily</label>
+      <label><input type="radio" name="scheduleType" value="two-day"> Two-Day Split</label>
+
+      <div>
+        <h3>Day 1</h3>
+        <label><input type="checkbox" name="day1" value="pushups"> Push-Ups</label>
+        <label><input type="checkbox" name="day1" value="pullups"> Pull-Ups</label>
+        <label><input type="checkbox" name="day1" value="squats"> Squats</label>
+        <label><input type="checkbox" name="day1" value="toeToBar"> Toe-To-Bar</label>
+      </div>
+
+      <div>
+        <h3>Day 2</h3>
+        <label><input type="checkbox" name="day2" value="pushups"> Push-Ups</label>
+        <label><input type="checkbox" name="day2" value="pullups"> Pull-Ups</label>
+        <label><input type="checkbox" name="day2" value="squats"> Squats</label>
+        <label><input type="checkbox" name="day2" value="toeToBar"> Toe-To-Bar</label>
+      </div>
+
+      <button type="submit">Save</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const scheduleType = formData.get('scheduleType');
+      const day1 = formData.getAll('day1');
+      const day2 = formData.getAll('day2');
+      const schedule = { type: scheduleType, day1, day2 };
+      localStorage.setItem('workoutSchedule', JSON.stringify(schedule));
+      alert('Schedule saved!');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

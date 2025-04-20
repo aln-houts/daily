@@ -4,8 +4,14 @@ body {
   background: #f5f5f5;
 }
 
-header h1 {
-  text-align: center;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header button {
+  padding: 0.5rem;
 }
 
 section {
@@ -18,11 +24,6 @@ button {
   font-size: 1rem;
 }
 
-.exercise-block {
-  margin-bottom: 2rem;
-}
-
-.set-checks {
-  margin-top: 0.5rem;
-  margin-left: 1rem;
+canvas {
+  max-width: 100%;
 }
