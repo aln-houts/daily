@@ -14,12 +14,14 @@
     .collapsible.open .content { display: block; }
     h3 { margin-top: 1rem; }
     .exercise-list label { display: block; margin: 0.25rem 0; }
+    .exercise-config { margin-left: 1rem; margin-bottom: 1rem; padding: 0.5rem 1rem; background-color: #eef2f5; border-radius: 6px; display: none; }
     #customAdd { display: flex; margin: 1rem 0; }
     #customAdd input { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
     #customAdd button { margin-left: 0.5rem; padding: 0.5rem 1rem; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     #customAdd button:hover { background: #0056b3; }
     button[type="submit"] { display: block; margin: 1.5rem auto 0; padding: 0.75rem 2rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
     button[type="submit"]:hover { background-color: #0056b3; }
+    input[type="number"] { width: 5rem; }
   </style>
 </head>
 <body>
@@ -88,15 +90,21 @@
       kettlebell: ["kettlebellSwing","gobletSquat"],
       barbell: ["barbellSquat","deadlift","benchPress"]
     };
-
     let masterExercises = JSON.parse(localStorage.getItem("masterExercises") || "[]");
     if (!masterExercises.length) {
       masterExercises = [...defaultsByCategory.bodyweight];
       localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
     }
+    const maxHistory = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
 
     function capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+    }
+
+    function toggleSection(id) {
+      const sec = document.getElementById(id);
+      const open = sec.classList.toggle('open');
+      sec.querySelector('header span').textContent = open ? '-' : '+';
     }
 
     function renderLibrary() {
@@ -137,22 +145,29 @@
         div.innerHTML = "";
         const day = div.dataset.day;
         masterExercises.forEach(ex => {
+          const exId = `${ex}_d${day}`;
+          const latest = (maxHistory[ex]?.slice(-1)[0]?.value || 0);
+          const suggested = Math.round(latest * 0.85);
           div.insertAdjacentHTML('beforeend',
-            `<label><input type="checkbox" name="day${day}" value="${ex}" /> ${capitalize(ex)}</label>`
+            `<label>
+              <input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}
+            </label>
+            <div id="${exId}" class="exercise-config">
+              <label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3"/></label>
+              <label>Reps per Set: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}"/></label>
+            </div>`
           );
         });
       });
     }
 
+    function toggleConfig(checkbox, id) {
+      document.getElementById(id).style.display = checkbox.checked ? "block" : "none";
+    }
+
     function toggleDays() {
       const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
       document.getElementById('day2Options').style.display = (scheduleType === 'two-day') ? 'block' : 'none';
-    }
-
-    function toggleSection(id) {
-      const sec = document.getElementById(id);
-      const open = sec.classList.toggle('open');
-      sec.querySelector('header span').textContent = open ? '-' : '+';
     }
 
     document.getElementById("scheduleForm").addEventListener("submit", function(e) {
@@ -164,9 +179,13 @@
         [1,2].forEach(day => {
           if (form.getAll(`day${day}`).includes(ex)) {
             schedule[`day${day}`].push(ex);
+            const sets = form.get(`${ex}_d${day}_sets`);
+            const reps = form.get(`${ex}_d${day}_reps`);
+            schedule.config[`${ex}_d${day}`] = { sets: Number(sets), reps: Number(reps) };
           }
         });
       });
+      localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
       localStorage.setItem("workoutSchedule", JSON.stringify(schedule));
       alert("Schedule saved!");
       window.location.href = "index.html";
