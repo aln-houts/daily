@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Workout</title>
   <link rel="stylesheet" href="style.css"/>
@@ -10,23 +10,16 @@
   <header>
     <h1>Workout</h1>
     <button onclick="location.href='max-reps.html'">Max Reps</button>
-    <button onclick="openSchedule()">Schedule</button>
+    <button onclick="location.href='schedule.html'">Schedule</button>
   </header>
 
-  <section id="timerSection">
-    <h3>Workout Timer</h3>
-    <p id="timerDisplay">00:00</p>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="stopTimer()">Stop</button>
-    <button onclick="resetTimer()">Reset</button>
-  </section>
-
-  <section id="workoutDetails">
+  <section id="workoutSection">
+    <h2>Today's Workout</h2>
     <form id="workoutForm"></form>
   </section>
 
   <section id="workoutGraph">
-    <h3>Total Reps Per Workout</h3>
+    <h2>Total Reps Per Workout</h2>
     <canvas id="workoutChart"></canvas>
   </section>
 
