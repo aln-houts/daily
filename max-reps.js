@@ -26,7 +26,7 @@ function loadMaxRepsCharts() {
   chartsSection.innerHTML = '';
 
   exercises.forEach(ex => {
-    // Create container + canvas
+    // 1) Create wrapper + canvas
     const section = document.createElement('section');
     section.innerHTML = `
       <h4>${capitalize(ex)}</h4>
@@ -34,10 +34,15 @@ function loadMaxRepsCharts() {
     `;
     chartsSection.appendChild(section);
 
-    // Grab context
-    const ctx = document.getElementById(`chart_${ex}`).getContext('2d');
+    // 2) Grab its 2D context
+    const canvas = document.getElementById(`chart_${ex}`);
+    if (!canvas) {
+      console.error('Missing canvas for', ex);
+      return;
+    }
+    const ctx = canvas.getContext('2d');
 
-    // Plot even if empty
+    // 3) Plot (works even with empty data arrays)
     const entries = history[ex] || [];
     new Chart(ctx, {
       type: 'line',
@@ -97,5 +102,6 @@ function updateDisplay() {
   loadMaxRepsCharts();
 }
 
+// kick it all off
 window.onload = updateDisplay;
                                                          
