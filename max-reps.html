@@ -12,7 +12,7 @@
       gap: 1rem;
       margin: 1rem 0;
     }
-    .max-rep-card, .max-rep-chart {
+    .max-rep-card {
       background: #eef2f5;
       border-radius: 8px;
       padding: 1rem;
@@ -33,6 +33,19 @@
       display: block;
       margin: 0.5rem 0;
     }
+    #maxRepsCharts {
+      margin: 2rem 0;
+    }
+    #maxRepsCharts > section {
+      margin-bottom: 2rem;
+      background: #eef2f5;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    #maxRepsCharts h4 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
     button {
       padding: 0.5rem 1rem;
       margin: 0.5rem;
@@ -44,9 +57,6 @@
     }
     button:hover {
       background: #0056b3;
-    }
-    h4 {
-      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -70,14 +80,14 @@
     </form>
   </section>
 
-  <section id="maxRepsCharts" class="max-reps-grid">
-    <div class="max-rep-chart"><h4>Pushups</h4><canvas id="chart_pushups"></canvas></div>
-    <div class="max-rep-chart"><h4>Pullups</h4><canvas id="chart_pullups"></canvas></div>
-    <div class="max-rep-chart"><h4>Squats</h4><canvas id="chart_squats"></canvas></div>
-    <div class="max-rep-chart"><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></div>
+  <section id="maxRepsCharts">
+    <section><h4>Pushups</h4><canvas id="chart_pushups"></canvas></section>
+    <section><h4>Pullups</h4><canvas id="chart_pullups"></canvas></section>
+    <section><h4>Squats</h4><canvas id="chart_squats"></canvas></section>
+    <section><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></section>
   </section>
 
-  <!-- UMD build of Chart.js -->
+  <!-- Chart.js UMD build -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script src="max-reps.js"></script>
 </body>
