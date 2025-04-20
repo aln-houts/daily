@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Schedule</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .exercise-config {
+      margin-left: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <section id="schedulePage">
     <h1>Set Workout Schedule</h1>
+
+    <div id="maxRepsInfo"></div>
+    <p><em>Tip: Aim for 80–90% of your max reps per set</em></p>
+
     <form id="scheduleForm">
       <label><input type="radio" name="scheduleType" value="daily" checked> Daily</label>
       <label><input type="radio" name="scheduleType" value="two-day"> Two-Day Split</label>
 
       <div>
         <h3>Day 1</h3>
-        <label><input type="checkbox" name="day1" value="pushups"> Push-Ups</label>
-        <label><input type="checkbox" name="day1" value="pullups"> Pull-Ups</label>
-        <label><input type="checkbox" name="day1" value="squats"> Squats</label>
-        <label><input type="checkbox" name="day1" value="toeToBar"> Toe-To-Bar</label>
+        <div class="exercise-list" data-day="1"></div>
       </div>
 
       <div>
         <h3>Day 2</h3>
-        <label><input type="checkbox" name="day2" value="pushups"> Push-Ups</label>
-        <label><input type="checkbox" name="day2" value="pullups"> Pull-Ups</label>
-        <label><input type="checkbox" name="day2" value="squats"> Squats</label>
-        <label><input type="checkbox" name="day2" value="toeToBar"> Toe-To-Bar</label>
+        <div class="exercise-list" data-day="2"></div>
       </div>
 
       <button type="submit">Save</button>
@@ -34,16 +39,73 @@
   </section>
 
   <script>
-    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+    const exercises = ["pushups", "pullups", "squats", "toeToBar"];
+    const maxReps = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
+    const maxInfo = document.getElementById("maxRepsInfo");
+
+    // Display max reps
+    maxInfo.innerHTML = "<h4>Max Reps:</h4>";
+    exercises.forEach(ex => {
+      const history = maxReps[ex] || [];
+      const latest = history.length ? history[history.length - 1].value : 0;
+      maxInfo.innerHTML += `<p>${capitalize(ex)}: ${latest}</p>`;
+    });
+
+    // Build exercise checkboxes and config
+    document.querySelectorAll(".exercise-list").forEach(div => {
+      const day = div.dataset.day;
+      exercises.forEach(ex => {
+        const exId = `${ex}_d${day}`;
+        const latest = (maxReps[ex]?.slice(-1)[0]?.value || 10);
+        const suggested = Math.round(latest * 0.85);
+
+        div.innerHTML += `
+          <label>
+            <input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this, '${exId}')">
+            ${capitalize(ex)}
+          </label>
+          <div id="${exId}" class="exercise-config">
+            <label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3" /></label><br/>
+            <label>Reps per Set: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}" /></label>
+          </div>
+        `;
+      });
+    });
+
+    function toggleConfig(checkbox, id) {
+      document.getElementById(id).style.display = checkbox.checked ? "block" : "none";
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+    }
+
+    // Save schedule to localStorage
+    document.getElementById("scheduleForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const formData = new FormData(this);
-      const scheduleType = formData.get('scheduleType');
-      const day1 = formData.getAll('day1');
-      const day2 = formData.getAll('day2');
-      const schedule = { type: scheduleType, day1, day2 };
-      localStorage.setItem('workoutSchedule', JSON.stringify(schedule));
-      alert('Schedule saved!');
-      window.location.href = 'index.html';
+      const form = new FormData(this);
+      const scheduleType = form.get("scheduleType");
+      const schedule = {
+        type: scheduleType,
+        day1: [],
+        day2: [],
+        config: {}
+      };
+
+      exercises.forEach(ex => {
+        [1, 2].forEach(day => {
+          if (form.getAll(`day${day}`).includes(ex)) {
+            schedule[`day${day}`].push(ex);
+            const sets = form.get(`${ex}_d${day}_sets`);
+            const reps = form.get(`${ex}_d${day}_reps`);
+            schedule.config[`${ex}_d${day}`] = { sets: Number(sets), reps: Number(reps) };
+          }
+        });
+      });
+
+      localStorage.setItem("workoutSchedule", JSON.stringify(schedule));
+      alert("Schedule saved!");
+      window.location.href = "index.html";
     });
   </script>
 </body>
