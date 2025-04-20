@@ -13,22 +13,16 @@ section {
 }
 
 button {
-  margin: 0.5rem;
-  padding: 0.75rem 1rem;
+  margin: 0.25rem;
+  padding: 0.5rem 1rem;
   font-size: 1rem;
 }
 
-.hidden {
-  display: none;
+.exercise-block {
+  margin-bottom: 2rem;
 }
 
-#maxRepsSection,
-#scheduleSection,
-#workoutSection,
-#maxHistorySection {
-  margin-top: 2rem;
-  padding: 1rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 5px #ccc;
+.set-checks {
+  margin-top: 0.5rem;
+  margin-left: 1rem;
 }
