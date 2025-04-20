@@ -31,7 +31,30 @@
       <span id="libraryToggle">+</span>
     </header>
     <div class="content">
-      <!-- Library content unchanged -->
+      <div class="category-group" data-category="bodyweight">
+        <h3>Bodyweight</h3>
+        <div id="lib-bodyweight" class="exercise-list"></div>
+      </div>
+      <div class="category-group" data-category="cardio">
+        <h3>Cardio</h3>
+        <div id="lib-cardio" class="exercise-list"></div>
+      </div>
+      <div class="category-group" data-category="dumbbell">
+        <h3>Dumbbell</h3>
+        <div id="lib-dumbbell" class="exercise-list"></div>
+      </div>
+      <div class="category-group" data-category="kettlebell">
+        <h3>Kettlebell</h3>
+        <div id="lib-kettlebell" class="exercise-list"></div>
+      </div>
+      <div class="category-group" data-category="barbell">
+        <h3>Barbell</h3>
+        <div id="lib-barbell" class="exercise-list"></div>
+      </div>
+      <div id="customAdd">
+        <input type="text" id="newExerciseName" placeholder="Add a custom exercise" />
+        <button type="button" onclick="addCustomExercise()">Add</button>
+      </div>
     </div>
   </section>
 
@@ -42,18 +65,115 @@
     </header>
     <div class="content">
       <form id="scheduleForm" onchange="toggleDays()">
-        <!-- Form content unchanged -->
+        <label><input type="radio" name="scheduleType" value="daily" checked /> Daily</label>
+        <label><input type="radio" name="scheduleType" value="two-day" /> Two-Day Split</label>
+
+        <div id="day1Options">
+          <h3>Day 1</h3>
+          <div class="exercise-list" data-day="1"></div>
+        </div>
+        <div id="day2Options">
+          <h3>Day 2</h3>
+          <div class="exercise-list" data-day="2"></div>
+        </div>
+
         <button type="submit">Save</button>
       </form>
     </div>
   </section>
 
   <script>
-    // All previous functions unchanged...
+    const defaultsByCategory = {
+      bodyweight: ["pushups","pullups","squats","toeToBar"],
+      cardio: ["running","jumpRope","burpees"],
+      dumbbell: ["dumbbellRow","dumbbellPress"],
+      kettlebell: ["kettlebellSwing","gobletSquat"],
+      barbell: ["barbellSquat","deadlift","benchPress"]
+    };
+
+    let masterExercises = JSON.parse(localStorage.getItem("masterExercises") || "[]");
+    if (!masterExercises.length) {
+      masterExercises = [...defaultsByCategory.bodyweight];
+      localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
+    }
+
+    const maxHistory = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+    }
+
+    function toggleSection(id) {
+      const sec = document.getElementById(id);
+      const open = sec.classList.toggle('open');
+      sec.querySelector('header span').textContent = open ? '-' : '+';
+    }
+
+    function renderLibrary() {
+      Object.entries(defaultsByCategory).forEach(([cat, list]) => {
+        const container = document.getElementById(`lib-${cat}`);
+        container.innerHTML = '';
+        list.forEach(ex => {
+          const checked = masterExercises.includes(ex) ? "checked" : "";
+          container.insertAdjacentHTML('beforeend',
+            `<label><input type="checkbox" name="masterEx" value="${ex}" ${checked}/> ${capitalize(ex)}</label>`
+          );
+        });
+        container.querySelectorAll('input[name="masterEx"]').forEach(cb => {
+          cb.onchange = () => {
+            masterExercises = Array.from(document.querySelectorAll('input[name="masterEx"]:checked'))
+              .map(e => e.value);
+            localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
+            buildScheduleLists();
+          };
+        });
+      });
+    }
+
+    function addCustomExercise() {
+      const name = document.getElementById("newExerciseName").value.trim();
+      if (!name) return;
+      const id = name.replace(/\s+/g, "").toLowerCase();
+      if (!masterExercises.includes(id)) {
+        masterExercises.push(id);
+        localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
+        renderLibrary();
+      }
+      document.getElementById("newExerciseName").value = "";
+    }
+
+    function buildScheduleLists() {
+      document.querySelectorAll(".exercise-list[data-day]").forEach(div => {
+        div.innerHTML = "";
+        const day = div.dataset.day;
+        masterExercises.forEach(ex => {
+          const exId = `${ex}_d${day}`;
+          const latest = (maxHistory[ex]?.slice(-1)[0]?.value || 0);
+          const suggested = Math.round(latest * 0.85);
+          div.insertAdjacentHTML('beforeend',
+            `<label>
+              <input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}
+            </label>
+            <div id="${exId}" class="exercise-config">
+              <label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3"/></label>
+              <label>Reps per Set: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}"/></label>
+            </div>`
+          );
+        });
+      });
+    }
+
+    function toggleConfig(checkbox, id) {
+      document.getElementById(id).style.display = checkbox.checked ? "block" : "none";
+    }
+
+    function toggleDays() {
+      const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+      document.getElementById('day2Options').style.display = (scheduleType === 'two-day') ? 'block' : 'none';
+    }
 
     document.getElementById("scheduleForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      // Save logic
       const form = new FormData(this);
       const scheduleType = form.get("scheduleType");
       const schedule = { type: scheduleType, day1: [], day2: [], config: {} };
@@ -69,10 +189,13 @@
       });
       localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
       localStorage.setItem("workoutSchedule", JSON.stringify(schedule));
-      console.log("Schedule saved:", schedule);
-      // Redirect to workout page reliably
       window.location.href = "index.html";
     });
+
+    // init
+    renderLibrary();
+    buildScheduleLists();
+    toggleDays();
   </script>
 </body>
 </html>
