@@ -1,5 +1,23 @@
+const exercises = ["pushups", "pullups", "squats", "toeToBar"];
+
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+}
+
+function loadMaxRepsCards() {
+  const container = document.getElementById('maxRepsCards');
+  container.innerHTML = '';
+  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+  exercises.forEach(ex => {
+    const entries = history[ex] || [];
+    const latest = entries.length ? entries[entries.length - 1].value : 0;
+    const card = document.createElement('div');
+    card.className = 'max-rep-card';
+    card.dataset.exercise = ex;
+    card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
+    card.addEventListener('click', () => openMaxEntry(ex));
+    container.appendChild(card);
+  });
 }
 
 function loadMaxRepsCharts() {
@@ -8,7 +26,7 @@ function loadMaxRepsCharts() {
   chartsSection.innerHTML = '';
 
   exercises.forEach(ex => {
-    // 1) Create a wrapper section + canvas for every exercise
+    // Create container + canvas
     const section = document.createElement('section');
     section.innerHTML = `
       <h4>${capitalize(ex)}</h4>
@@ -16,10 +34,10 @@ function loadMaxRepsCharts() {
     `;
     chartsSection.appendChild(section);
 
-    // 2) Grab the canvas context
+    // Grab context
     const ctx = document.getElementById(`chart_${ex}`).getContext('2d');
 
-    // 3) Plot—even if entries is empty, this will draw empty axes
+    // Plot even if empty
     const entries = history[ex] || [];
     new Chart(ctx, {
       type: 'line',
@@ -48,5 +66,36 @@ function loadMaxRepsCharts() {
   });
 }
 
+function openMaxEntry(ex) {
+  document.getElementById('currentExercise').textContent = capitalize(ex);
+  const inputs = document.getElementById('maxEntryInputs');
+  inputs.innerHTML = `<label>${capitalize(ex)}: <input type="number" name="${ex}" min="1"></label>`;
+  document.getElementById('maxEntrySection').classList.remove('hidden');
+}
 
-window.onload = loadMaxRepsGraphs;
+function closeMaxEntry() {
+  document.getElementById('maxEntrySection').classList.add('hidden');
+}
+
+document.getElementById('maxEntryForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const ex = form.querySelector('input[name]').name;
+  const val = Number(form[ex].value);
+  if (!val) return;
+  const today = new Date().toISOString().split('T')[0];
+  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
+  if (!history[ex]) history[ex] = [];
+  history[ex].push({ date: today, value: val });
+  localStorage.setItem('maxRepHistory', JSON.stringify(history));
+  closeMaxEntry();
+  updateDisplay();
+});
+
+function updateDisplay() {
+  loadMaxRepsCards();
+  loadMaxRepsCharts();
+}
+
+window.onload = updateDisplay;
+                                                         
