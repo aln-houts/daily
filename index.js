@@ -21,6 +21,10 @@ function loadWorkoutPage() {
   } else if (schedule.type === 'two-day') {
     const day = today.getDay();
     exercises = (day % 2 === 0) ? (schedule.day1 || []) : (schedule.day2 || []);
+  } else if (schedule.type === 'weekly') {
+    const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const dayName = dayNames[today.getDay()];
+    exercises = (schedule.weekly && schedule.weekly[dayName]) || [];
   }
 
   if (!exercises.length) {
@@ -29,14 +33,24 @@ function loadWorkoutPage() {
   }
 
   exercises.forEach(ex => {
-    const dayIndex = (schedule.type === 'daily') ? 1 : ((today.getDay() % 2 === 0) ? 1 : 2);
-    const cfgKey = `${ex}_d${dayIndex}`;
+    // determine config key based on type
+    let cfgKey;
+    if (schedule.type === 'weekly') {
+      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      const dayName = dayNames[today.getDay()];
+      cfgKey = `${ex}_${dayName}`;
+    } else {
+      const dayIndex = (schedule.type === 'daily') ? 1 : ((today.getDay() % 2 === 0) ? 1 : 2);
+      cfgKey = `${ex}_d${dayIndex}`;
+    }
     const cfg = (schedule.config && schedule.config[cfgKey]) || { sets: 1, reps: 0 };
+
     const card = document.createElement('div');
     card.className = 'exercise-card';
     card.dataset.exercise = ex;
     card.innerHTML = `<h3>${capitalize(ex)}</h3><div class="sets-container" id="sets_${ex}"></div>`;
     section.appendChild(card);
+
     const container = document.getElementById(`sets_${ex}`);
     const logEx = todayLog[ex] || { sets: [] };
 
