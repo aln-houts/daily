@@ -117,7 +117,7 @@ function loadWorkoutPage() {
   const todayKey = getTodayKey();
   const todayLog = logs[todayKey] || {};
   const todayIdx = new Date().getDay();
-  const exercises = schedule.byDay?.[String(todayIdx)] || [];
+  const exercises = schedule.byDay?.[todayIdx] || [];
 
   if (!exercises.length) {
     section.innerHTML += '<p>No exercises scheduled for today.</p>';
