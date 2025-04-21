@@ -96,5 +96,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script src="index.js"></script>
+  <script>
+  const debug = JSON.parse(localStorage.getItem("workoutSchedule") || "{}");
+  document.write("<pre style='background:#eef;padding:1rem;font-size:12px;'>Saved Schedule:\\n" + JSON.stringify(debug, null, 2) + "</pre>");
+  </script>
 </body>
 </html>
