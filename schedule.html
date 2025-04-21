@@ -16,10 +16,10 @@
     .weekday-list { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 0.5rem 0; }
     .weekday-list label, .generic-panels label { width: 30%; display: block; margin: 0.25rem 0; }
     .day-panel { background: #eef2f5; margin: 1rem auto; padding: 1rem; border-radius: 8px; max-width: 600px; }
-    .exercise-config { margin-left: 1rem; display: none; }
+    .exercise-config { margin-left: 1rem; display: none; margin-bottom: 0.5rem; }
     button { padding: 0.75rem 1.5rem; margin: 1rem; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
     button:hover { background: #0056b3; }
-    input[type="number"] { width: 4rem; margin-left: 0.5rem; }
+    input[type="number"], select { margin-left: 0.5rem; margin-top: 0.25rem; }
   </style>
 </head>
 <body>
@@ -133,11 +133,26 @@
           const listDiv=document.createElement('div');
           masterExercises.forEach(ex=>{
             const exId='gen_'+i+'_'+ex;
+            const isBW = defaultsByCategory.bodyweight.includes(ex);
             listDiv.insertAdjacentHTML('beforeend',
               `<label><input type="checkbox" name="gen_${i}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
                <div id="${exId}" class="exercise-config">
                  Sets:<input type="number" name="${ex}_${i}_sets" min="1" value="3"/>
                  Reps:<input type="number" name="${ex}_${i}_reps" min="1" value="1"/>
+                 ${isBW ?
+                   `Band:<select name="${ex}_${i}_band">
+                      <option value="none">No band</option>
+                      <option value="Light">Light</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Heavy">Heavy</option>
+                      <option value="X-Heavy">X-Heavy</option>
+                    </select>
+                    <select name="${ex}_${i}_bandType">
+                      <option value="Assistance">Assistance</option>
+                      <option value="Resistance">Resistance</option>
+                    </select>` :
+                   `Weight:<input type="number" name="${ex}_${i}_weight" min="0" value="0"/>`
+                 }
                </div>`
             );
           });
@@ -167,12 +182,27 @@
         panel.innerHTML=`<h3>${capitalize(days[dayIdx])}</h3>`;
         const listDiv=document.createElement('div');
         masterExercises.forEach(ex=>{
-          const exId=ex+'_'+dayIdx;
+          const exId=`${ex}_${dayIdx}`;
+          const isBW = defaultsByCategory.bodyweight.includes(ex);
           listDiv.insertAdjacentHTML('beforeend',
             `<label><input type="checkbox" name="day_${dayIdx}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
              <div id="${exId}" class="exercise-config">
                Sets:<input type="number" name="${ex}_${dayIdx}_sets" min="1" value="3"/>
                Reps:<input type="number" name="${ex}_${dayIdx}_reps" min="1" value="1"/>
+               ${isBW ?
+                 `Band:<select name="${ex}_${dayIdx}_band">
+                    <option value="none">No band</option>
+                    <option value="Light">Light</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Heavy">Heavy</option>
+                    <option value="X-Heavy">X-Heavy</option>
+                  </select>
+                  <select name="${ex}_${dayIdx}_bandType">
+                    <option value="Assistance">Assistance</option>
+                    <option value="Resistance">Resistance</option>
+                  </select>` :
+                 `Weight:<input type="number" name="${ex}_${dayIdx}_weight" min="0" value="0"/>`
+               }
              </div>`
           );
         });
@@ -203,7 +233,15 @@
         sel.forEach(ex=>{
           const sets=document.querySelector(`input[name="${ex}_0_sets"]`).value;
           const reps=document.querySelector(`input[name="${ex}_0_reps"]`).value;
-          days.forEach((_,d)=>schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps)});
+          const isBW = defaultsByCategory.bodyweight.includes(ex);
+          let band=null,bandType=null,weight=null;
+          if(isBW){
+            band=document.querySelector(`select[name="${ex}_0_band"]`).value;
+            bandType=document.querySelector(`select[name="${ex}_0_bandType"]`).value;
+          } else {
+            weight=Number(document.querySelector(`input[name="${ex}_0_weight"]`).value);
+          }
+          days.forEach((_,d)=>schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps),...(isBW?{band,bandType}:{weight})});
         });
       } else if(mode==='two-day'){
         const sel0=Array.from(document.querySelectorAll('input[name="gen_0"]:checked')).map(i=>i.value);
@@ -212,12 +250,28 @@
         sel0.forEach(ex=>{
           const sets=document.querySelector(`input[name="${ex}_0_sets"]`).value;
           const reps=document.querySelector(`input[name="${ex}_0_reps"]`).value;
-          days.forEach((_,d)=>{ if(d%2===0) schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps)} });
+          const isBW = defaultsByCategory.bodyweight.includes(ex);
+          let band=null,bandType=null,weight=null;
+          if(isBW){
+            band=document.querySelector(`select[name="${ex}_0_band"]`).value;
+            bandType=document.querySelector(`select[name="${ex}_0_bandType"]`).value;
+          } else {
+            weight=Number(document.querySelector(`input[name="${ex}_0_weight"]`).value);
+          }
+          days.forEach((_,d)=>{ if(d%2===0) schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps),...(isBW?{band,bandType}:{weight})}; });
         });
         sel1.forEach(ex=>{
           const sets=document.querySelector(`input[name="${ex}_1_sets"]`).value;
           const reps=document.querySelector(`input[name="${ex}_1_reps"]`).value;
-          days.forEach((_,d)=>{ if(d%2===1) schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps)} });
+          const isBW = defaultsByCategory.bodyweight.includes(ex);
+          let band=null,bandType=null,weight=null;
+          if(isBW){
+            band=document.querySelector(`select[name="${ex}_1_band"]`).value;
+            bandType=document.querySelector(`select[name="${ex}_1_bandType"]`).value;
+          } else {
+            weight=Number(document.querySelector(`input[name="${ex}_1_weight"]`).value);
+          }
+          days.forEach((_,d)=>{ if(d%2===1) schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps),...(isBW?{band,bandType}:{weight})}; });
         });
       } else {
         days.forEach((_,i)=>{
@@ -226,17 +280,25 @@
           sel.forEach(ex=>{
             const sets=document.querySelector(`input[name="${ex}_${i}_sets"]`).value;
             const reps=document.querySelector(`input[name="${ex}_${i}_reps"]`).value;
-            schedule.config[`${ex}_${i}`]={sets:Number(sets),reps:Number(reps)};
+            const isBW = defaultsByCategory.bodyweight.includes(ex);
+            let band=null,bandType=null,weight=null;
+            if(isBW){
+              band=document.querySelector(`select[name="${ex}_${i}_band"]`).value;
+              bandType=document.querySelector(`select[name="${ex}_${i}_bandType"]`).value;
+            } else {
+              weight=Number(document.querySelector(`input[name="${ex}_${i}_weight"]`).value);
+            }
+            schedule.config[`${ex}_${i}`]={sets:Number(sets),reps:Number(reps),...(isBW?{band,bandType}:{weight})};
           });
         });
       }
       localStorage.setItem('masterExercises',JSON.stringify(masterExercises));
       localStorage.setItem('workoutSchedule',JSON.stringify(schedule));
       alert('Schedule saved');
-      window.location.href = 'index.html';
+      window.location.href='index.html';
     });
 
-    window.onload = applyMode;
+    window.onload=applyMode;
   </script>
 </body>
 </html>
