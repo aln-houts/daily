@@ -6,7 +6,7 @@ function getTodayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
-let timerInterval, remainingTime;
+let timerInterval, remainingTime, remainingRounds;
 
 function formatTime(sec) {
   const m = Math.floor(sec/60).toString().padStart(2,'0');
@@ -25,7 +25,9 @@ function playBeep() {
 
 function startTimerCycle() {
   clearInterval(timerInterval);
-  remainingTime = Number(document.getElementById('setTimerDuration').value);
+  const duration = Number(document.getElementById('setTimerDuration').value);
+  remainingRounds = Number(document.getElementById('timerRounds').value);
+  remainingTime = duration;
   document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
   timerInterval = setInterval(() => {
     remainingTime--;
@@ -33,12 +35,17 @@ function startTimerCycle() {
     document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
     if (remainingTime <= 0) {
       playBeep();
-      clearInterval(timerInterval);
-      // Auto start next round
-      startTimerCycle();
+      remainingRounds--;
+      if (remainingRounds > 0) {
+        remainingTime = duration;
+      } else {
+        clearInterval(timerInterval);
+      }
     }
   }, 1000);
 }
+
+// ... (other functions loadWorkoutPage, saveWorkout, loadWorkoutGraph unchanged)
 
 function saveWorkout() {
   const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
@@ -74,8 +81,10 @@ function loadWorkoutPage() {
     return;
   }
 
+  let totalSets = 0;
   exercises.forEach(ex => {
     const cfg = schedule.config?.[`${ex}_${todayIdx}`] || { sets: 1, reps: 0 };
+    totalSets += cfg.sets;
     const card = document.createElement('div');
     card.className = 'exercise-card';
     card.dataset.exercise = ex;
@@ -98,6 +107,9 @@ function loadWorkoutPage() {
       container.appendChild(item);
     }
   });
+
+  // Set default rounds to totalSets
+  document.getElementById('timerRounds').value = totalSets;
 }
 
 function loadWorkoutGraph() {

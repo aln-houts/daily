@@ -16,9 +16,22 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+    #timerSettings {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    #timerSettings label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
     #timerDisplay {
-      font-size: 2rem;
+      font-size: 5rem;
+      font-weight: bold;
       margin-top: 0.5rem;
+      width: 100%;
     }
     /* Workout Cards Grid */
     #workoutSection {
@@ -62,14 +75,17 @@
   </header>
 
   <section id="timerControl">
-    <label>Set Duration (sec): <input type="number" id="setTimerDuration" value="120" min="1"/></label>
+    <div id="timerSettings">
+      <label>Duration (sec): <input type="number" id="setTimerDuration" value="120" min="1"/></label>
+      <label>Rounds: <input type="number" id="timerRounds" min="1" value="1"/></label>
+    </div>
     <button id="startTimerBtn">Start Timer</button>
     <button id="stopTimerBtn">Stop Timer</button>
     <div id="timerDisplay">00:00</div>
   </section>
 
   <section id="workoutSection">
-    <h2>Today's Workout</h2>
+    <!-- Workout cards inserted here -->
   </section>
 
   <button id="saveWorkoutButton">Save Workout</button>
