@@ -131,16 +131,17 @@
     }
 
     function addCustomExercise() {
-      const name = document.getElementById("newExerciseName").value.trim();
-      if (!name) return;
-      const id = name.replace(/\s+/g, "").toLowerCase();
-      if (!masterExercises.includes(id)) {
-        masterExercises.push(id);
-        localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
-        renderLibrary();
-      }
-      document.getElementById("newExerciseName").value = "";
+    const name = document.getElementById("newExerciseName").value.trim();
+    if (!name) return;
+    const id = name.replace(/\s+/g, "").toLowerCase();
+    if (!masterExercises.includes(id)) {
+      masterExercises.push(id);
+      localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
+      renderLibrary();
+      buildScheduleLists();            // ← ADD THIS
     }
+    document.getElementById("newExerciseName").value = "";
+  }
 
     function buildScheduleLists() {
       document.querySelectorAll(".exercise-list[data-day]").forEach(div => {
