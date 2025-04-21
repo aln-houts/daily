@@ -99,6 +99,23 @@
   <script>
   const debug = JSON.parse(localStorage.getItem("workoutSchedule") || "{}");
   document.write("<pre style='background:#eef;padding:1rem;font-size:12px;'>Saved Schedule:\\n" + JSON.stringify(debug, null, 2) + "</pre>");
+  </script><script>
+(function(){
+  const sched = localStorage.getItem('workoutSchedule');
+  if (sched) {
+    const parsed = JSON.parse(sched);
+    const debugDiv = document.createElement('pre');
+    debugDiv.style = 'background:#eef;padding:1rem;margin:1rem;font-size:12px;';
+    debugDiv.textContent = 'Workout Schedule:\\n' + JSON.stringify(parsed, null, 2);
+    document.body.appendChild(debugDiv);
+  } else {
+    const msg = document.createElement('p');
+    msg.textContent = 'No workoutSchedule found in localStorage.';
+    msg.style = 'color:red;text-align:center;margin-top:2rem;';
+    document.body.appendChild(msg);
+  }
+})();
   </script>
+  
 </body>
 </html>
