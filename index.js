@@ -6,6 +6,59 @@ function getTodayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
+let timerInterval, remainingTime;
+
+function formatTime(sec) {
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function playBeep() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  osc.connect(ctx.destination);
+  osc.frequency.value = 1000;
+  osc.start();
+  osc.stop(ctx.currentTime + 0.1);
+}
+
+function startTimerCycle() {
+  clearInterval(timerInterval);
+  remainingTime = Number(document.getElementById('setTimerDuration').value);
+  document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+  timerInterval = setInterval(() => {
+    remainingTime--;
+    if (remainingTime > 0 && remainingTime <= 3) playBeep();
+    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+    if (remainingTime <= 0) {
+      playBeep();
+      clearInterval(timerInterval);
+      // Auto start next round
+      startTimerCycle();
+    }
+  }, 1000);
+}
+
+function saveWorkout() {
+  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
+  const todayKey = getTodayKey();
+  const todayLog = {};
+  document.querySelectorAll('.exercise-card').forEach(card => {
+    const ex = card.dataset.exercise;
+    todayLog[ex] = { sets: [] };
+    card.querySelectorAll('.set-item').forEach(item => {
+      const repVal = Number(item.querySelector('input[type="number"]').value);
+      const completed = item.querySelector('input[type="radio"]').checked;
+      todayLog[ex].sets.push({ reps: repVal, completed });
+    });
+  });
+  logs[todayKey] = todayLog;
+  localStorage.setItem('workoutLogs', JSON.stringify(logs));
+  alert('Workout saved!');
+  loadWorkoutGraph();
+}
+
 function loadWorkoutPage() {
   const section = document.getElementById('workoutSection');
   section.innerHTML = '<h2>Today\'s Workout</h2>';
@@ -13,7 +66,7 @@ function loadWorkoutPage() {
   const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
   const todayLog = logs[todayKey] || {};
-  const todayIdx = new Date().getDay(); // 0 = Sunday
+  const todayIdx = new Date().getDay();
   const exercises = schedule.byDay?.[todayIdx] || [];
 
   if (!exercises.length) {
@@ -47,25 +100,6 @@ function loadWorkoutPage() {
   });
 }
 
-function saveWorkout() {
-  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
-  const todayKey = getTodayKey();
-  const todayLog = {};
-  document.querySelectorAll('.exercise-card').forEach(card => {
-    const ex = card.dataset.exercise;
-    todayLog[ex] = { sets: [] };
-    card.querySelectorAll('.set-item').forEach(item => {
-      const repVal = Number(item.querySelector('input[type="number"]').value);
-      const completed = item.querySelector('input[type="radio"]').checked;
-      todayLog[ex].sets.push({ reps: repVal, completed });
-    });
-  });
-  logs[todayKey] = todayLog;
-  localStorage.setItem('workoutLogs', JSON.stringify(logs));
-  alert('Workout saved!');
-  loadWorkoutGraph();
-}
-
 function loadWorkoutGraph() {
   const data = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const labels = Object.keys(data);
@@ -81,6 +115,8 @@ function loadWorkoutGraph() {
   });
 }
 
+document.getElementById('startTimerBtn').addEventListener('click', startTimerCycle);
+document.getElementById('stopTimerBtn').addEventListener('click', () => clearInterval(timerInterval));
 document.getElementById('saveWorkoutButton').addEventListener('click', saveWorkout);
 
 window.onload = () => {

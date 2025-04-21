@@ -6,20 +6,43 @@
   <title>Workout</title>
   <link rel="stylesheet" href="style.css"/>
   <style>
+    /* Timer Controls */
+    #timerControl {
+      max-width: 600px;
+      margin: 1rem auto;
+      text-align: center;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #timerDisplay {
+      font-size: 2rem;
+      margin-top: 0.5rem;
+    }
+    /* Workout Cards Grid */
+    #workoutSection {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 1rem;
+      max-width: 800px;
+      margin: 1rem auto;
+    }
     .exercise-card {
       background: #fff;
       border-radius: 8px;
       padding: 1rem;
-      margin-bottom: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .exercise-card h3 {
       margin-top: 0;
+      text-align: center;
     }
     .sets-container {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
+      margin-top: 0.5rem;
     }
     .set-item {
       display: flex;
@@ -29,23 +52,6 @@
       border-radius: 6px;
       padding: 0.5rem;
     }
-    .set-item input[type="number"] {
-      width: 3rem;
-    }
-    #saveWorkoutButton {
-      display: block;
-      margin: 2rem auto;
-      padding: 0.75rem 2rem;
-      font-size: 1rem;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #saveWorkoutButton:hover {
-      background-color: #0056b3;
-    }
   </style>
 </head>
 <body>
@@ -54,6 +60,13 @@
     <button onclick="location.href='max-reps.html'">Max Reps</button>
     <button onclick="location.href='schedule.html'">Schedule</button>
   </header>
+
+  <section id="timerControl">
+    <label>Set Duration (sec): <input type="number" id="setTimerDuration" value="120" min="1"/></label>
+    <button id="startTimerBtn">Start Timer</button>
+    <button id="stopTimerBtn">Stop Timer</button>
+    <div id="timerDisplay">00:00</div>
+  </section>
 
   <section id="workoutSection">
     <h2>Today's Workout</h2>
