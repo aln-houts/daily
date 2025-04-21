@@ -7,15 +7,6 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     .max-reps-grid {
-      displ<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Max Reps Over Time</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .max-reps-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 1rem;
@@ -28,101 +19,15 @@
       text-align: center;
       cursor: pointer;
     }
-    #maxEntrySection {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 5px #ccc;
-      margin-bottom: 1.5rem;
-    }
-    #maxEntrySection.hidden {
-      display: none;
-    }
-    #maxEntryInputs label {
-      display: block;
-      margin: 0.5rem 0;
-    }
+    #maxEntrySection,
     #maxRepsCharts {
-      margin: 2rem 0;
-    }
-    #maxRepsCharts > section {
-      margin-bottom: 2rem;
-      background: #eef2f5;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    #maxRepsCharts h4 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    /* Ensure canvas has a fixed height */
-    #maxRepsCharts canvas {
-      width: 100% !important;
-      height: 200px !important;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      margin: 0.5rem;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Max Reps Over Time</h1>
-    <button onclick="location.href='index.html'">Workout</button>
-    <button onclick="location.href='schedule.html'">Schedule</button>
-  </header>
-
-  <section id="performMaxSection">
-    <div id="maxRepsCards" class="max-reps-grid"></div>
-  </section>
-
-  <section id="maxEntrySection" class="hidden">
-    <h2>Enter Max Reps for <span id="currentExercise"></span></h2>
-    <form id="maxEntryForm">
-      <div id="maxEntryInputs"></div>
-      <button type="submit">Save</button>
-      <button type="button" onclick="closeMaxEntry()">Cancel</button>
-    </form>
-  </section>
-
-  <section id="maxRepsCharts">
-    <section><h4>Pushups</h4><canvas id="chart_pushups"></canvas></section>
-    <section><h4>Pullups</h4><canvas id="chart_pullups"></canvas></section>
-    <section><h4>Squats</h4><canvas id="chart_squats"></canvas></section>
-    <section><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></section>
-  </section>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
-  <script src="max-reps.js"></script>
-</body>
-</html>
-ay: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    .max-rep-card {
-      background: #eef2f5;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
+      margin-bottom: 1.5rem;
     }
     #maxEntrySection {
       background: #fff;
       padding: 1rem;
       border-radius: 8px;
       box-shadow: 0 0 5px #ccc;
-      margin-bottom: 1.5rem;
     }
     #maxEntrySection.hidden {
       display: none;
@@ -130,75 +35,6 @@ ay: grid;
     #maxEntryInputs label {
       display: block;
       margin: 0.5rem 0;
-    }
-    #maxRepsCharts {
-      margin: 2rem 0;
-    }
-    #maxRepsCharts > section {
-      margin-bottom: 2rem;
-      background: #eef2f5;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    #maxRepsCharts h4 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    /* Ensure canvas has a fixed height */
-    #maxRepsCharts canvas {
-      width: 100% !important;
-      heigh<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Max Reps Over Time</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .max-reps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    .max-rep-card {
-      background: #eef2f5;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-    }
-    #maxEntrySection {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
-    #maxEntrySection.hidden {
-      display: none;
-    }
-    #maxEntryInputs label {
-      display: block;
-      margin: 0.5rem 0;
-    }
-    #maxRepsCharts {
-      margin: 2rem 0;
-    }
-    #maxRepsCharts > section {
-      margin-bottom: 2rem;
-      background: #eef2f5;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    #maxRepsCharts h4 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    /* give each canvas a consistent height */
-    #maxRepsCharts canvas {
-      width: 100% !important;
-      height: 200px !important;
     }
     button {
       padding: 0.5rem 1rem;
@@ -234,61 +70,7 @@ ay: grid;
     </form>
   </section>
 
-  <section id="maxRepsCharts">
-    <section><h4>Pushups</h4><canvas id="chart_pushups"></canvas></section>
-    <section><h4>Pullups</h4><canvas id="chart_pullups"></canvas></section>
-    <section><h4>Squats</h4><canvas id="chart_squats"></canvas></section>
-    <section><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></section>
-  </section>
-
-  <!-- Chart.js UMD bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
-  <!-- External logic -->
-  <script src="max-reps.js"></script>
-</body>
-</html>
-t: 200px !important;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      margin: 0.5rem;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Max Reps Over Time</h1>
-    <button onclick="location.href='index.html'">Workout</button>
-    <button onclick="location.href='schedule.html'">Schedule</button>
-  </header>
-
-  <section id="performMaxSection">
-    <div id="maxRepsCards" class="max-reps-grid"></div>
-  </section>
-
-  <section id="maxEntrySection" class="hidden">
-    <h2>Enter Max Reps for <span id="currentExercise"></span></h2>
-    <form id="maxEntryForm">
-      <div id="maxEntryInputs"></div>
-      <button type="submit">Save</button>
-      <button type="button" onclick="closeMaxEntry()">Cancel</button>
-    </form>
-  </section>
-
-  <section id="maxRepsCharts">
-    <section><h4>Pushups</h4><canvas id="chart_pushups"></canvas></section>
-    <section><h4>Pullups</h4><canvas id="chart_pullups"></canvas></section>
-    <section><h4>Squats</h4><canvas id="chart_squats"></canvas></section>
-    <section><h4>Toe To Bar</h4><canvas id="chart_toeToBar"></canvas></section>
-  </section>
+  <section id="maxRepsCharts"></section>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script src="max-reps.js"></script>
