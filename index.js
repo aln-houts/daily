@@ -9,23 +9,12 @@ function getTodayKey() {
 function loadWorkoutPage() {
   const section = document.getElementById('workoutSection');
   section.innerHTML = '<h2>Today\'s Workout</h2>';
-  const schedule = JSON.parse(localStorage.getItem('workoutSchedule')||'{}');
-  const logs = JSON.parse(localStorage.getItem('workoutLogs')||'{}');
+  const schedule = JSON.parse(localStorage.getItem('workoutSchedule') || '{}');
+  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
   const todayLog = logs[todayKey] || {};
-  const today = new Date();
-  let exercises = [];
-
-  if (schedule.type === 'daily') {
-    exercises = schedule.day1 || [];
-  } else if (schedule.type === 'two-day') {
-    const day = today.getDay();
-    exercises = (day % 2 === 0) ? (schedule.day1 || []) : (schedule.day2 || []);
-  } else if (schedule.type === 'weekly') {
-    const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-    const dayName = dayNames[today.getDay()];
-    exercises = (schedule.weekly && schedule.weekly[dayName]) || [];
-  }
+  const todayIdx = new Date().getDay(); // 0 = Sunday
+  const exercises = schedule.byDay?.[todayIdx] || [];
 
   if (!exercises.length) {
     section.innerHTML += '<p>No exercises scheduled for today.</p>';
@@ -33,18 +22,7 @@ function loadWorkoutPage() {
   }
 
   exercises.forEach(ex => {
-    // determine config key based on type
-    let cfgKey;
-    if (schedule.type === 'weekly') {
-      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-      const dayName = dayNames[today.getDay()];
-      cfgKey = `${ex}_${dayName}`;
-    } else {
-      const dayIndex = (schedule.type === 'daily') ? 1 : ((today.getDay() % 2 === 0) ? 1 : 2);
-      cfgKey = `${ex}_d${dayIndex}`;
-    }
-    const cfg = (schedule.config && schedule.config[cfgKey]) || { sets: 1, reps: 0 };
-
+    const cfg = schedule.config?.[`${ex}_${todayIdx}`] || { sets: 1, reps: 0 };
     const card = document.createElement('div');
     card.className = 'exercise-card';
     card.dataset.exercise = ex;
@@ -56,7 +34,7 @@ function loadWorkoutPage() {
 
     for (let i = 1; i <= cfg.sets; i++) {
       const prev = logEx.sets[i - 1] || {};
-      const repsVal = (typeof prev.reps === 'number') ? prev.reps : cfg.reps;
+      const repsVal = typeof prev.reps === 'number' ? prev.reps : cfg.reps;
       const completed = prev.completed ? 'checked' : '';
       const item = document.createElement('div');
       item.className = 'set-item';
@@ -70,7 +48,7 @@ function loadWorkoutPage() {
 }
 
 function saveWorkout() {
-  const logs = JSON.parse(localStorage.getItem('workoutLogs')||'{}');
+  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
   const todayLog = {};
   document.querySelectorAll('.exercise-card').forEach(card => {
@@ -89,10 +67,10 @@ function saveWorkout() {
 }
 
 function loadWorkoutGraph() {
-  const data = JSON.parse(localStorage.getItem('workoutLogs')||'{}');
+  const data = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const labels = Object.keys(data);
-  const totals = labels.map(date => 
-    Object.values(data[date]).reduce((sum, ex) => 
+  const totals = labels.map(date =>
+    Object.values(data[date]).reduce((sum, ex) =>
       sum + ex.sets.reduce((s, st) => s + st.reps, 0), 0)
   );
   const ctx = document.getElementById('workoutChart').getContext('2d');
