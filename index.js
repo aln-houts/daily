@@ -6,7 +6,10 @@ function getTodayKey() {
   return new Date().toISOString().split('T')[0];
 }
 
-let timerInterval, countdownInterval, remainingTime, remainingRounds;
+let timerInterval;
+let remainingTime = 0;
+let remainingRounds = 0;
+let timerRunning = false;
 
 function formatTime(sec) {
   const m = Math.floor(sec/60).toString().padStart(2,'0');
@@ -23,54 +26,50 @@ function playBeep() {
   osc.stop(ctx.currentTime + 0.1);
 }
 
-// Pre-countdown before each round
-function startPreCountdown(duration, onComplete) {
-  clearInterval(timerInterval);
-  clearInterval(countdownInterval);
-  let preTime = duration;
-  document.getElementById('timerDisplay').textContent = formatTime(preTime);
-  countdownInterval = setInterval(() => {
-    preTime--;
-    if (preTime > 0 && preTime <= 3) playBeep();
-    document.getElementById('timerDisplay').textContent = formatTime(preTime);
-    if (preTime <= 0) {
-      clearInterval(countdownInterval);
-      playBeep();
-      onComplete();
-    }
-  }, 1000);
-}
-
-// Main timer cycle for rounds
-function startTimerCycle() {
-  clearInterval(timerInterval);
-  const duration = Number(document.getElementById('setTimerDuration').value);
-  remainingRounds = Number(document.getElementById('timerRounds').value);
-  // Start first pre-countdown of 3 seconds
-  function runRound() {
-    if (remainingRounds <= 0) {
-      clearInterval(timerInterval);
-      document.getElementById('timerDisplay').textContent = "00:00";
-      return;
-    }
-    remainingTime = duration;
-    timerInterval = setInterval(() => {
-      remainingTime--;
-      if (remainingTime > 0 && remainingTime <= 3) playBeep();
+function tick() {
+  if (remainingTime > 0) {
+    remainingTime--;
+    // beep on 3, 2, 1 seconds left
+    if (remainingTime > 0 && remainingTime <= 3) playBeep();
+    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+  } else {
+    // end of round
+    playBeep();
+    remainingRounds--;
+    if (remainingRounds > 0) {
+      // start next round
+      const duration = Number(document.getElementById('setTimerDuration').value);
+      remainingTime = duration;
       document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
-      if (remainingTime <= 0) {
-        playBeep();
-        clearInterval(timerInterval);
-        remainingRounds--;
-        // start next round pre-countdown
-        startPreCountdown(3, runRound);
-      }
-    }, 1000);
+    } else {
+      // finished all rounds
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerToggleBtn').textContent = 'Start';
+    }
   }
-  // initial pre-countdown
-  startPreCountdown(3, runRound);
 }
 
+function toggleTimer() {
+  if (!timerRunning) {
+    // start
+    const duration = Number(document.getElementById('setTimerDuration').value);
+    const rounds = Number(document.getElementById('timerRounds').value);
+    remainingTime = duration;
+    remainingRounds = rounds;
+    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+    timerInterval = setInterval(tick, 1000);
+    timerRunning = true;
+    document.getElementById('timerToggleBtn').textContent = 'Pause';
+  } else {
+    // pause
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerToggleBtn').textContent = 'Start';
+  }
+}
+
+// Load workout and graph functions unchanged...
 function saveWorkout() {
   const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
@@ -102,6 +101,7 @@ function loadWorkoutPage() {
 
   if (!exercises.length) {
     section.innerHTML += '<p>No exercises scheduled for today.</p>';
+    document.getElementById('timerToggleBtn').disabled = true;
     return;
   }
 
@@ -132,8 +132,9 @@ function loadWorkoutPage() {
     }
   });
 
-  // Default rounds equals total sets
+  // default rounds equals total sets
   document.getElementById('timerRounds').value = totalSets;
+  document.getElementById('timerToggleBtn').disabled = false;
 }
 
 function loadWorkoutGraph() {
@@ -151,11 +152,7 @@ function loadWorkoutGraph() {
   });
 }
 
-document.getElementById('startTimerBtn').addEventListener('click', startTimerCycle);
-document.getElementById('pauseTimerBtn').addEventListener('click', () => { 
-  clearInterval(timerInterval);
-  clearInterval(countdownInterval);
-});
+document.getElementById('timerToggleBtn').addEventListener('click', toggleTimer);
 document.getElementById('saveWorkoutButton').addEventListener('click', saveWorkout);
 
 window.onload = () => {
