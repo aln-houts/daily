@@ -91,7 +91,6 @@
           );
         });
       });
-      // custom
       const customCont=document.getElementById('lib-custom');
       customCont.innerHTML='';
       masterExercises.filter(ex=>!flatDefaults.includes(ex)).forEach(ex=>{
@@ -121,10 +120,10 @@
     }
 
     function renderGenericPanels(){
-      const mode = document.querySelector('input[name="mode"]:checked').value;
-      const container = document.getElementById('genericPanels');
+      const mode=document.querySelector('input[name="mode"]:checked').value;
+      const container=document.getElementById('genericPanels');
       container.innerHTML='';
-      if(mode==='daily' || mode==='two-day'){
+      if(mode==='daily'||mode==='two-day'){
         const count = mode==='daily'?1:2;
         for(let i=0;i<count;i++){
           const panel=document.createElement('div');
@@ -133,7 +132,7 @@
           panel.innerHTML=`<h3>${mode==='daily'?'Workout':'Workout Day '+(i+1)}</h3>`;
           const listDiv=document.createElement('div');
           masterExercises.forEach(ex=>{
-            const exId=`gen_${i}_${ex}`;
+            const exId='gen_'+i+'_'+ex;
             listDiv.insertAdjacentHTML('beforeend',
               `<label><input type="checkbox" name="gen_${i}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
                <div id="${exId}" class="exercise-config">
@@ -168,7 +167,7 @@
         panel.innerHTML=`<h3>${capitalize(days[dayIdx])}</h3>`;
         const listDiv=document.createElement('div');
         masterExercises.forEach(ex=>{
-          const exId=`${ex}_${dayIdx}`;
+          const exId=ex+'_'+dayIdx;
           listDiv.insertAdjacentHTML('beforeend',
             `<label><input type="checkbox" name="day_${dayIdx}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
              <div id="${exId}" class="exercise-config">
@@ -182,18 +181,16 @@
     }
 
     function toggleConfig(id,cb){
-      document.getElementById(id).style.display = cb.checked?'block':'none';
+      document.getElementById(id).style.display=cb.checked?'block':'none';
     }
 
     function applyMode(){
-      renderGenericPanels();
+      renderLibrary(); renderGenericPanels();
       const mode=document.querySelector('input[name="mode"]:checked').value;
       document.getElementById('genericPanels').style.display=(mode==='manual')?'none':'block';
       document.getElementById('weekdayList').style.display=(mode==='manual')?'flex':'none';
       document.getElementById('weekdayPanels').style.display=(mode==='manual')?'block':'none';
-      if(mode==='manual'){
-        renderWeekdayList(); buildWeekdayPanels();
-      }
+      if(mode==='manual'){ renderWeekdayList(); buildWeekdayPanels(); }
     }
 
     document.querySelectorAll('input[name="mode"]').forEach(rb=>rb.addEventListener('change',applyMode));
@@ -209,10 +206,9 @@
           days.forEach((_,d)=>schedule.config[`${ex}_${d}`]={sets:Number(sets),reps:Number(reps)});
         });
       } else if(mode==='two-day'){
-        // even day0, odd day1
         const sel0=Array.from(document.querySelectorAll('input[name="gen_0"]:checked')).map(i=>i.value);
         const sel1=Array.from(document.querySelectorAll('input[name="gen_1"]:checked')).map(i=>i.value);
-        days.forEach((_,i)=>schedule.byDay[i] = (i%2===0?sel0:sel1));
+        days.forEach((_,i)=>schedule.byDay[i]=(i%2===0?sel0:sel1));
         sel0.forEach(ex=>{
           const sets=document.querySelector(`input[name="${ex}_0_sets"]`).value;
           const reps=document.querySelector(`input[name="${ex}_0_reps"]`).value;
@@ -234,15 +230,13 @@
           });
         });
       }
-      localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
-      localStorage.setItem('workoutSchedule', JSON.stringify(schedule));
+      localStorage.setItem('masterExercises',JSON.stringify(masterExercises));
+      localStorage.setItem('workoutSchedule',JSON.stringify(schedule));
       alert('Schedule saved');
+      window.location.href = 'index.html';
     });
 
-    window.onload = ()=>{
-      renderLibrary();
-      applyMode();
-    };
+    window.onload = applyMode;
   </script>
 </body>
 </html>
