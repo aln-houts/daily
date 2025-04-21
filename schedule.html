@@ -1,69 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Schedule</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
   <style>
-    body { font-family: sans-serif; background-color: #f9f9f9; margin: 0; padding: 1rem; }
-    .collapsible { max-width: 600px; margin: 1rem auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-    .collapsible header { background: #007bff; color: #fff; padding: 0.75rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .collapsible header h2 { margin: 0; font-size: 1.25rem; }
-    .collapsible .content { padding: 1rem; display: none; }
+    body { font-family: sans-serif; background: #f9f9f9; margin: 0; padding: 1rem; }
+    .collapsible { max-width: 600px; margin: 1rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    .collapsible header { background: #007bff; color: #fff; padding: 0.75rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .collapsible .content { display: none; padding: 1rem; }
     .collapsible.open .content { display: block; }
     h3 { margin-top: 1rem; }
     .exercise-list label, .weekday-list label { display: block; margin: 0.25rem 0; }
-    .exercise-config { margin-left: 1rem; margin-bottom: 1rem; padding: 0.5rem 1rem; background-color: #eef2f5; border-radius: 6px; display: none; }
+    .exercise-config { margin-left: 1rem; margin-bottom: 1rem; background: #eef2f5; padding: 0.5rem; border-radius: 6px; display: none; }
     #customAdd { display: flex; margin: 1rem 0; }
     #customAdd input { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
     #customAdd button { margin-left: 0.5rem; padding: 0.5rem 1rem; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     #customAdd button:hover { background: #0056b3; }
-    button[type="submit"] { display: block; margin: 1.5rem auto 0; padding: 0.75rem 2rem; font-size: 1rem; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button[type="submit"]:hover { background-color: #0056b3; }
-    #weeklyDayOptions .exercise-day { background: #f0f8ff; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; }
-    input[type="number"] { width: 5rem; }
+    button[type="submit"] { display: block; margin: 1.5rem auto; padding: 0.75rem 2rem; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    button[type="submit"]:hover { background: #0056b3; }
+    #weeklyDayOptions .exercise-day { background: #f0f8ff; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; }
+    input[type="number"] { width: 4rem; margin-left: 0.5rem; }
   </style>
 </head>
 <body>
   <section class="collapsible" id="librarySection">
     <header onclick="toggleSection('librarySection')">
-      <h2>Manage Your Exercises</h2>
-      <span id="libraryToggle">+</span>
+      <h2>Manage Your Exercises</h2><span>+</span>
     </header>
     <div class="content">
-      <div class="category-group" data-category="bodyweight"><h3>Bodyweight</h3><div id="lib-bodyweight" class="exercise-list"></div></div>
-      <div class="category-group" data-category="cardio"><h3>Cardio</h3><div id="lib-cardio" class="exercise-list"></div></div>
-      <div class="category-group" data-category="dumbbell"><h3>Dumbbell</h3><div id="lib-dumbbell" class="exercise-list"></div></div>
-      <div class="category-group" data-category="kettlebell"><h3>Kettlebell</h3><div id="lib-kettlebell" class="exercise-list"></div></div>
-      <div class="category-group" data-category="barbell"><h3>Barbell</h3><div id="lib-barbell" class="exercise-list"></div></div>
-      <div id="customAdd"><input type="text" id="newExerciseName" placeholder="Add a custom exercise" /><button type="button" onclick="addCustomExercise()">Add</button></div>
+      <div class="category-group"><h3>Bodyweight</h3><div id="lib-bodyweight" class="exercise-list"></div></div>
+      <div class="category-group"><h3>Cardio</h3><div id="lib-cardio" class="exercise-list"></div></div>
+      <div class="category-group"><h3>Dumbbell</h3><div id="lib-dumbbell" class="exercise-list"></div></div>
+      <div class="category-group"><h3>Kettlebell</h3><div id="lib-kettlebell" class="exercise-list"></div></div>
+      <div class="category-group"><h3>Barbell</h3><div id="lib-barbell" class="exercise-list"></div></div>
+      <div class="category-group"><h3>Custom</h3><div id="lib-custom" class="exercise-list"></div></div>
+      <div id="customAdd">
+        <input id="newExerciseName" placeholder="Add custom exercise"/>
+        <button onclick="addCustomExercise()">Add</button>
+      </div>
     </div>
   </section>
 
   <section class="collapsible open" id="scheduleSection">
     <header onclick="toggleSection('scheduleSection')">
-      <h2>Set Workout Schedule</h2>
-      <span id="scheduleToggle">-</span>
+      <h2>Set Workout Schedule</h2><span>-</span>
     </header>
     <div class="content">
       <form id="scheduleForm">
-        <label><input type="radio" name="scheduleType" value="daily" checked /> Daily</label>
-        <label><input type="radio" name="scheduleType" value="two-day" /> Two-Day Split</label>
-        <label><input type="radio" name="scheduleType" value="weekly" /> Weekly</label>
+        <label><input type="radio" name="scheduleType" value="daily" checked/> Daily</label>
+        <label><input type="radio" name="scheduleType" value="two-day"/> Two-Day Split</label>
+        <label><input type="radio" name="scheduleType" value="weekly"/> Weekly</label>
 
         <div id="day1Options"><h3>Day 1</h3><div class="exercise-list" data-day="1"></div></div>
         <div id="day2Options"><h3>Day 2</h3><div class="exercise-list" data-day="2"></div></div>
 
         <div id="weeklyOptions"><h3>Weekly</h3>
           <div class="weekday-list">
-            <label><input type="checkbox" name="weekday" value="monday" /> Monday</label>
-            <label><input type="checkbox" name="weekday" value="tuesday" /> Tuesday</label>
-            <label><input type="checkbox" name="weekday" value="wednesday" /> Wednesday</label>
-            <label><input type="checkbox" name="weekday" value="thursday" /> Thursday</label>
-            <label><input type="checkbox" name="weekday" value="friday" /> Friday</label>
-            <label><input type="checkbox" name="weekday" value="saturday" /> Saturday</label>
-            <label><input type="checkbox" name="weekday" value="sunday" /> Sunday</label>
+            <label><input type="checkbox" name="weekday" value="monday"/> Monday</label>
+            <label><input type="checkbox" name="weekday" value="tuesday"/> Tuesday</label>
+            <label><input type="checkbox" name="weekday" value="wednesday"/> Wednesday</label>
+            <label><input type="checkbox" name="weekday" value="thursday"/> Thursday</label>
+            <label><input type="checkbox" name="weekday" value="friday"/> Friday</label>
+            <label><input type="checkbox" name="weekday" value="saturday"/> Saturday</label>
+            <label><input type="checkbox" name="weekday" value="sunday"/> Sunday</label>
           </div>
           <div id="weeklyDayOptions"></div>
         </div>
@@ -81,59 +82,141 @@
       kettlebell: ["kettlebellSwing","gobletSquat"],
       barbell: ["barbellSquat","deadlift","benchPress"]
     };
-    let masterExercises = JSON.parse(localStorage.getItem("masterExercises") || "[]");
-    if (!masterExercises.length) { masterExercises = [...defaultsByCategory.bodyweight]; localStorage.setItem("masterExercises", JSON.stringify(masterExercises)); }
-    const maxHistory = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
+    let masterExercises = JSON.parse(localStorage.getItem('masterExercises')||'[]');
+    if(!masterExercises.length) masterExercises = [...defaultsByCategory.bodyweight];
+    const maxHistory = JSON.parse(localStorage.getItem('maxRepHistory')||'{}');
 
-    function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1'); }
-    function toggleSection(id) { const sec = document.getElementById(id); const open = sec.classList.toggle('open'); sec.querySelector('header span').textContent = open ? '-' : '+'; }
+    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1).replace(/([A-Z])/g,' $1');}
+    function toggleSection(id){const sec=document.getElementById(id); const open=sec.classList.toggle('open'); sec.querySelector('span').textContent=open?'-':'+';}
 
-    function renderLibrary() {
-      Object.entries(defaultsByCategory).forEach(([cat,list]) => {
-        const c = document.getElementById(`lib-${cat}`); c.innerHTML = '';
-        list.forEach(ex => { const checked = masterExercises.includes(ex)?'checked':''; c.insertAdjacentHTML('beforeend', `<label><input type="checkbox" name="masterEx" value="${ex}" ${checked}/> ${capitalize(ex)}</label>`); });
-        c.querySelectorAll('input[name="masterEx"]').forEach(cb=>cb.onchange=()=>{ masterExercises = Array.from(document.querySelectorAll('input[name="masterEx"]:checked')).map(e=>e.value); localStorage.setItem("masterExercises",JSON.stringify(masterExercises)); buildScheduleLists(); toggleScheduleType(); });
+    function renderLibrary(){
+      const defaultsFlat = Object.values(defaultsByCategory).flat();
+      Object.entries(defaultsByCategory).forEach(([cat,list])=>{
+        const cont=document.getElementById('lib-'+cat);
+        cont.innerHTML='';
+        list.forEach(ex=>{
+          const ck=masterExercises.includes(ex)?'checked':'';
+          cont.insertAdjacentHTML('beforeend', `<label><input type="checkbox" name="masterEx" value="${ex}" ${ck}/> ${capitalize(ex)}</label>`);
+        });
+      });
+      const customCont=document.getElementById('lib-custom');
+      customCont.innerHTML='';
+      masterExercises.filter(ex=>!Object.values(defaultsByCategory).flat().includes(ex)).forEach(ex=>{
+        customCont.insertAdjacentHTML('beforeend', `<label><input type="checkbox" name="masterEx" value="${ex}" checked/> ${capitalize(ex)}</label>`);
+      });
+      document.querySelectorAll('input[name="masterEx"]').forEach(cb=>{
+        cb.onchange=()=>{
+          masterExercises = Array.from(document.querySelectorAll('input[name="masterEx"]:checked')).map(i=>i.value);
+          localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
+          buildScheduleLists();
+          toggleScheduleType();
+        };
       });
     }
 
-    function addCustomExercise() {
-      const name = document.getElementById("newExerciseName").value.trim(); if (!name) return;
-      const id = name.replace(/\s+/g,"").toLowerCase(); if (!masterExercises.includes(id)) { masterExercises.push(id); localStorage.setItem("masterExercises",JSON.stringify(masterExercises)); renderLibrary(); buildScheduleLists(); toggleScheduleType(); }
-      document.getElementById("newExerciseName").value='';
+    function addCustomExercise(){
+      const name=document.getElementById('newExerciseName').value.trim();
+      if(!name) return;
+      const id=name.replace(/\s+/g,'').toLowerCase();
+      if(!masterExercises.includes(id)){
+        masterExercises.push(id);
+        localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
+        renderLibrary();
+        buildScheduleLists();
+        toggleScheduleType();
+      }
+      document.getElementById('newExerciseName').value='';
     }
 
-    function buildScheduleLists() {
-      document.querySelectorAll('.exercise-list[data-day]').forEach(div=>{ div.innerHTML=''; const day=div.dataset.day; masterExercises.forEach(ex=>{ const exId=`${ex}_d${day}`; const latest=(maxHistory[ex]?.slice(-1)[0]?.value||0); const suggested=Math.round(latest*0.85); div.insertAdjacentHTML('beforeend', `<label><input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}</label><div id="${exId}" class="exercise-config"><label>Sets: <input type="number" name="${ex}_d${day}_sets" min="1" value="3"/></label><label>Reps: <input type="number" name="${ex}_d${day}_reps" min="1" value="${suggested}"/></label></div>`); }); });
+    function buildScheduleLists(){
+      document.querySelectorAll('.exercise-list[data-day]').forEach(div=>{
+        div.innerHTML='';
+        const day=div.dataset.day;
+        masterExercises.forEach(ex=>{
+          const exId=`${ex}_d${day}`;
+          const latest=(maxHistory[ex]?.slice(-1)[0]?.value||0);
+          const sug=Math.round(latest*0.85);
+          div.insertAdjacentHTML('beforeend',
+            `<label><input type="checkbox" name="day${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}</label><div id="${exId}" class="exercise-config"><label>Sets:<input type="number" name="${ex}_d${day}_sets" min="1" value="3"/></label><label>Reps:<input type="number" name="${ex}_d${day}_reps" min="1" value="${sug}"/></label></div>`
+          );
+        });
+      });
     }
 
     function toggleConfig(cb,id){document.getElementById(id).style.display=cb.checked?'block':'none';}
 
     function toggleScheduleType(){
-      const t = Array.from(document.querySelectorAll('input[name="scheduleType"]')).find(r=>r.checked).value;
-      document.getElementById('day1Options').style.display = (t==='daily'||t==='two-day')?'block':'none';
-      document.getElementById('day2Options').style.display = (t==='two-day')?'block':'none';
-      document.getElementById('weeklyOptions').style.display = (t==='weekly')?'block':'none';
-      if(t==='weekly') buildWeeklyExerciseLists(); else document.getElementById('weeklyDayOptions').innerHTML='';
+      const type=document.querySelector('input[name="scheduleType"]:checked').value;
+      document.getElementById('day1Options').style.display=(type==='daily'||type==='two-day')?'block':'none';
+      document.getElementById('day2Options').style.display=(type==='two-day')?'block':'none';
+      document.getElementById('weeklyOptions').style.display=(type==='weekly')?'block':'none';
+      document.getElementById('weeklyDayOptions').innerHTML='';
+      if(type==='weekly') buildWeeklyExerciseLists();
+      localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
     }
 
     function buildWeeklyExerciseLists(){
-      const cont=document.getElementById('weeklyDayOptions'); cont.innerHTML='';
-      const days=Array.from(document.querySelectorAll('input[name="weekday"]:checked')).map(cb=>cb.value);
-      days.forEach(day=>{ const dayDiv=document.createElement('div'); dayDiv.className='exercise-day'; dayDiv.innerHTML=`<h3>${capitalize(day)}</h3><div class="exercise-list" data-weekday="${day}"></div>`; cont.appendChild(dayDiv);
-        const exListDiv=dayDiv.querySelector('.exercise-list'); masterExercises.forEach(ex=>{ const exId=`${ex}_${day}`; const latest=(maxHistory[ex]?.slice(-1)[0]?.value||0); const suggested=Math.round(latest*0.85);
-          exListDiv.insertAdjacentHTML('beforeend', `<label><input type="checkbox" name="${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}</label><div id="${exId}" class="exercise-config"><label>Sets: <input type="number" name="${ex}_${day}_sets" min="1" value="3"/></label><label>Reps: <input type="number" name="${ex}_${day}_reps" min="1" value="${suggested}"/></label></div>`);
+      const cont=document.getElementById('weeklyDayOptions');
+      cont.innerHTML='';
+      document.querySelectorAll('input[name="weekday"]:checked').forEach(cb=>{
+        const day=cb.value;
+        const dayDiv=document.createElement('div');
+        dayDiv.className='exercise-day';
+        dayDiv.innerHTML=`<h3>${capitalize(day)}</h3><div class="exercise-list" data-weekday="${day}"></div>`;
+        cont.appendChild(dayDiv);
+        const exDiv=dayDiv.querySelector('.exercise-list');
+        masterExercises.forEach(ex=>{
+          const exId=`${ex}_${day}`;
+          const latest=(maxHistory[ex]?.slice(-1)[0]?.value||0);
+          const sug=Math.round(latest*0.85);
+          exDiv.insertAdjacentHTML('beforeend',
+            `<label><input type="checkbox" name="weeklyEx_${day}" value="${ex}" onchange="toggleConfig(this,'${exId}')"/> ${capitalize(ex)}</label><div id="${exId}" class="exercise-config"><label>Sets:<input type="number" name="${ex}_${day}_sets" min="1" value="3"/></label><label>Reps:<input type="number" name="${ex}_${day}_reps" min="1" value="${sug}"/></label></div>`
+          );
         });
       });
     }
 
-    document.getElementById('scheduleForm').addEventListener('change', toggleScheduleType);
-    document.getElementById('scheduleForm').addEventListener('submit',function(e){e.preventDefault(); const form=new FormData(this); const type=form.get('scheduleType'); const schedule={type,day1:[],day2:[],weekdays:[],config:{}};
-      if(type==='weekly'){ schedule.weekdays=form.getAll('weekday'); schedule.weekly={}; schedule.weekdays.forEach(day=>{ schedule.weekly[day]=form.getAll(day); form.getAll(day).forEach(ex=>{ const sets=form.get(`${ex}_${day}_sets`), reps=form.get(`${ex}_${day}_reps`); schedule.config[`${ex}_${day}`]={sets:Number(sets),reps:Number(reps)} }); }); }
-      else{ masterExercises.forEach(ex=>{ [1,2].forEach(day=>{ if(form.getAll(`day${day}`).includes(ex)){ schedule[`day${day}`].push(ex); const sets=form.get(`${ex}_d${day}_sets`), reps=form.get(`${ex}_d${day}_reps`); schedule.config[`${ex}_d${day}`]={sets:Number(sets),reps:Number(reps)} }}); }); }
-      localStorage.setItem('masterExercises',JSON.stringify(masterExercises)); localStorage.setItem('workoutSchedule',JSON.stringify(schedule)); window.location.href='index.html'; });
+    document.getElementById('scheduleForm')
+      .addEventListener('change', toggleScheduleType);
+    document.getElementById('scheduleForm')
+      .addEventListener('submit', function(e){
+        e.preventDefault();
+        const form=new FormData(this);
+        const type=form.get('scheduleType');
+        const schedule={type,day1:[],day2:[],weekdays:[],weekly:{},config:{}};
+        if(type==='weekly'){
+          schedule.weekdays=form.getAll('weekday');
+          schedule.weekdays.forEach(day=>{
+            const sel=form.getAll(`weeklyEx_${day}`);
+            schedule.weekly[day]=sel;
+            sel.forEach(ex=>{
+              const sets=form.get(`${ex}_${day}_sets`);
+              const reps=form.get(`${ex}_${day}_reps`);
+              schedule.config[`${ex}_${day}`]={sets:Number(sets),reps:Number(reps)};
+            });
+          });
+        } else {
+          masterExercises.forEach(ex=>{
+            [1,2].forEach(day=>{
+              if(form.getAll(`day${day}`).includes(ex)){
+                schedule[`day${day}`].push(ex);
+                const sets=form.get(`${ex}_d${day}_sets`);
+                const reps=form.get(`${ex}_d${day}_reps`);
+                schedule.config[`${ex}_d${day}`]={sets:Number(sets),reps:Number(reps)};
+              }
+            });
+          });
+        }
+        localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
+        localStorage.setItem('workoutSchedule', JSON.stringify(schedule));
+        window.location.href='index.html';
+      });
 
-    // initialize
-    renderLibrary(); buildScheduleLists(); toggleScheduleType();
+    window.onload=()=>{
+      renderLibrary();
+      buildScheduleLists();
+      toggleScheduleType();
+    };
   </script>
 </body>
 </html>
