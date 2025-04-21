@@ -29,20 +29,15 @@ function playBeep() {
 function tick() {
   if (remainingTime > 0) {
     remainingTime--;
-    // beep on 3, 2, 1 seconds left
     if (remainingTime > 0 && remainingTime <= 3) playBeep();
     document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
   } else {
-    // end of round
     playBeep();
     remainingRounds--;
     if (remainingRounds > 0) {
-      // start next round
-      const duration = Number(document.getElementById('setTimerDuration').value);
-      remainingTime = duration;
+      remainingTime = Number(document.getElementById('setTimerDuration').value);
       document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
     } else {
-      // finished all rounds
       clearInterval(timerInterval);
       timerRunning = false;
       document.getElementById('timerToggleBtn').textContent = 'Start';
@@ -52,7 +47,6 @@ function tick() {
 
 function toggleTimer() {
   if (!timerRunning) {
-    // start
     const duration = Number(document.getElementById('setTimerDuration').value);
     const rounds = Number(document.getElementById('timerRounds').value);
     remainingTime = duration;
@@ -62,14 +56,78 @@ function toggleTimer() {
     timerRunning = true;
     document.getElementById('timerToggleBtn').textContent = 'Pause';
   } else {
-    // pause
     clearInterval(timerInterval);
     timerRunning = false;
     document.getElementById('timerToggleBtn').textContent = 'Start';
   }
 }
 
-// Load workout and graph functions unchanged...
+function loadWorkoutPage() {
+  const section = document.getElementById('workoutSection');
+  section.innerHTML = '<h2>Today\'s Workout</h2>';
+  const schedule = JSON.parse(localStorage.getItem('workoutSchedule') || '{}');
+  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
+  const todayKey = getTodayKey();
+  const todayLog = logs[todayKey] || {};
+  const todayIdx = new Date().getDay();
+
+  // Determine exercises with fallback
+  let exercises = [];
+  if (schedule.byDay) {
+    exercises = schedule.byDay[todayIdx] || [];
+  } else {
+    if (schedule.type === 'daily') {
+      exercises = schedule.day1 || [];
+    } else if (schedule.type === 'two-day') {
+      exercises = (todayIdx % 2 === 0) ? (schedule.day1 || []) : (schedule.day2 || []);
+    } else if (schedule.type === 'weekly') {
+      const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      const dayName = days[todayIdx];
+      exercises = (schedule.weekly && schedule.weekly[dayName]) || [];
+    }
+  }
+
+  if (!exercises.length) {
+    section.innerHTML += '<p>No exercises scheduled for today.</p>';
+    document.getElementById('timerToggleBtn').disabled = true;
+    return;
+  }
+  document.getElementById('timerToggleBtn').disabled = false;
+
+  let totalSets = 0;
+  exercises.forEach(ex => {
+    const cfgKey = schedule.byDay
+      ? `${ex}_${todayIdx}`
+      : `${ex}_${schedule.type==='weekly'
+          ? new Date().toLocaleString('en-us', { weekday: 'long' }).toLowerCase()
+          : ((todayIdx % 2 === 0 && schedule.type==='two-day') ? `${ex}_0` : `${ex}_1`)}`;
+    const cfg = schedule.config && schedule.config[cfgKey] 
+      ? schedule.config[cfgKey] 
+      : { sets: 1, reps: 0 };
+    totalSets += cfg.sets;
+    const card = document.createElement('div');
+    card.className = 'exercise-card';
+    card.dataset.exercise = ex;
+    card.innerHTML = `<h3>${capitalize(ex)}</h3><div class="sets-container" id="sets_${ex}"></div>`;
+    section.appendChild(card);
+
+    const container = document.getElementById(`sets_${ex}`);
+    const logEx = todayLog[ex] || { sets: [] };
+    for (let i = 1; i <= cfg.sets; i++) {
+      const prev = logEx.sets[i - 1] || {};
+      const repsVal = typeof prev.reps === 'number' ? prev.reps : cfg.reps;
+      const completed = prev.completed ? 'checked' : '';
+      container.innerHTML += `
+        <div class="set-item">
+          <input type="radio" name="${ex}_set${i}_completed" ${completed}/>
+          <input type="number" name="${ex}_set${i}_reps" value="${repsVal}" min="0"/>
+        </div>`;
+    }
+  });
+
+  document.getElementById('timerRounds').value = totalSets;
+}
+
 function saveWorkout() {
   const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
@@ -87,54 +145,6 @@ function saveWorkout() {
   localStorage.setItem('workoutLogs', JSON.stringify(logs));
   alert('Workout saved!');
   loadWorkoutGraph();
-}
-
-function loadWorkoutPage() {
-  const section = document.getElementById('workoutSection');
-  section.innerHTML = '<h2>Today\'s Workout</h2>';
-  const schedule = JSON.parse(localStorage.getItem('workoutSchedule') || '{}');
-  const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
-  const todayKey = getTodayKey();
-  const todayLog = logs[todayKey] || {};
-  const todayIdx = new Date().getDay();
-  const exercises = schedule.byDay?.[todayIdx] || [];
-
-  if (!exercises.length) {
-    section.innerHTML += '<p>No exercises scheduled for today.</p>';
-    document.getElementById('timerToggleBtn').disabled = true;
-    return;
-  }
-
-  let totalSets = 0;
-  exercises.forEach(ex => {
-    const cfg = schedule.config?.[`${ex}_${todayIdx}`] || { sets: 1, reps: 0 };
-    totalSets += cfg.sets;
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.dataset.exercise = ex;
-    card.innerHTML = `<h3>${capitalize(ex)}</h3><div class="sets-container" id="sets_${ex}"></div>`;
-    section.appendChild(card);
-
-    const container = document.getElementById(`sets_${ex}`);
-    const logEx = todayLog[ex] || { sets: [] };
-
-    for (let i = 1; i <= cfg.sets; i++) {
-      const prev = logEx.sets[i - 1] || {};
-      const repsVal = typeof prev.reps === 'number' ? prev.reps : cfg.reps;
-      const completed = prev.completed ? 'checked' : '';
-      const item = document.createElement('div');
-      item.className = 'set-item';
-      item.innerHTML = `
-        <input type="radio" name="${ex}_set${i}_completed" ${completed}/>
-        <input type="number" name="${ex}_set${i}_reps" value="${repsVal}" min="0"/>
-      `;
-      container.appendChild(item);
-    }
-  });
-
-  // default rounds equals total sets
-  document.getElementById('timerRounds').value = totalSets;
-  document.getElementById('timerToggleBtn').disabled = false;
 }
 
 function loadWorkoutGraph() {
