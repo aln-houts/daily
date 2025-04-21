@@ -1,9 +1,7 @@
 // Max Reps page logic
-let exercises = JSON.parse(localStorage.getItem('masterExercises') || '[]');
-if (!exercises.length) {
-  exercises = ['pushups','pullups','squats','toeToBar'];
-}
-
+const masterExercises = JSON.parse(localStorage.getItem('masterExercises') || 'null') 
+  || ['pushups','pullups','squats','toeToBar'];
+let historyData = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
 const charts = {};
 
 function capitalize(s) {
@@ -13,43 +11,50 @@ function capitalize(s) {
 function loadMaxRepsCards() {
   const container = document.getElementById('maxRepsCards');
   container.innerHTML = '';
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-  exercises.forEach(ex => {
-    const entries = history[ex] || [];
+  masterExercises.forEach(ex => {
+    const entries = historyData[ex] || [];
     const latest = entries.length ? entries[entries.length - 1].value : 0;
     const card = document.createElement('div');
     card.className = 'max-rep-card';
     card.dataset.exercise = ex;
-    card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest}</p>`;
+    card.innerHTML = `<h4>${capitalize(ex)}</h4><p>${latest || '—'}</p>`;
     card.addEventListener('click', () => openMaxEntry(ex));
     container.appendChild(card);
   });
 }
 
 function loadMaxRepsCharts() {
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
   const chartsSection = document.getElementById('maxRepsCharts');
   chartsSection.innerHTML = '';
-  exercises.forEach(ex => {
+  masterExercises.forEach(ex => {
     const section = document.createElement('section');
-    section.innerHTML = `<h4>${capitalize(ex)}</h4><canvas id="chart_${ex}"></canvas>`;
-    chartsSection.appendChild(section);
-    const canvas = document.getElementById(`chart_${ex}`);
-    const ctx = canvas.getContext('2d');
-    const entries = history[ex] || [];
-    const labels = entries.map(e => e.date);
-    const data = entries.map(e => e.value);
-    if (charts[ex]) charts[ex].destroy();
-    charts[ex] = new Chart(ctx, {
-      type: 'line',
-      data: { labels, datasets: [{ label: 'Max Reps', data, fill: false, tension: 0.2, pointRadius: 6 }] },
-      options: {
-        scales: {
-          x: { type: 'category', title: { display: true, text: 'Date' } },
-          y: { beginAtZero: true, title: { display: true, text: 'Reps' } }
+    section.innerHTML = `<h4>${capitalize(ex)}</h4>`;
+    const entries = historyData[ex] || [];
+    if (!entries.length) {
+      const noData = document.createElement('div');
+      noData.className = 'no-data';
+      noData.textContent = 'No data recorded. Click above to add.';
+      section.appendChild(noData);
+    } else {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'chart_' + ex;
+      section.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      const labels = entries.map(e => e.date);
+      const data = entries.map(e => e.value);
+      if (charts[ex]) charts[ex].destroy();
+      charts[ex] = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Max Reps', data, fill: false, tension: 0.2, pointRadius: 6 }] },
+        options: {
+          scales: {
+            x: { type: 'category', title: { display: true, text: 'Date' } },
+            y: { beginAtZero: true, title: { display: true, text: 'Reps' } }
+          }
         }
-      }
-    });
+      });
+    }
+    chartsSection.appendChild(section);
   });
 }
 
@@ -66,20 +71,20 @@ function closeMaxEntry() {
 
 document.getElementById('maxEntryForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const form = e.target;
-  const ex = form.querySelector('input[name]').name;
-  const val = Number(form[ex].value);
+  const input = e.target.querySelector('input[name]');
+  const ex = input.name;
+  const val = Number(input.value);
   if (!val) return;
   const today = new Date().toISOString().split('T')[0];
-  const history = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
-  if (!history[ex]) history[ex] = [];
-  history[ex].push({ date: today, value: val });
-  localStorage.setItem('maxRepHistory', JSON.stringify(history));
+  if (!historyData[ex]) historyData[ex] = [];
+  historyData[ex].push({ date: today, value: val });
+  localStorage.setItem('maxRepHistory', JSON.stringify(historyData));
   closeMaxEntry();
   updateDisplay();
 });
 
 function updateDisplay() {
+  historyData = JSON.parse(localStorage.getItem('maxRepHistory') || '{}');
   loadMaxRepsCards();
   loadMaxRepsCharts();
 }
