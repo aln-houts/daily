@@ -13,7 +13,7 @@
     .collapsible .content { padding: 1rem; display: none; }
     .collapsible.open .content { display: block; }
     h3 { margin-top: 1rem; }
-    .exercise-list label { display: block; margin: 0.25rem 0; }
+    .exercise-list label, .weekday-list label { display: block; margin: 0.25rem 0; }
     .exercise-config { margin-left: 1rem; margin-bottom: 1rem; padding: 0.5rem 1rem; background-color: #eef2f5; border-radius: 6px; display: none; }
     #customAdd { display: flex; margin: 1rem 0; }
     #customAdd input { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
@@ -64,9 +64,10 @@
       <span id="scheduleToggle">-</span>
     </header>
     <div class="content">
-      <form id="scheduleForm" onchange="toggleDays()">
+      <form id="scheduleForm" onchange="toggleScheduleType()">
         <label><input type="radio" name="scheduleType" value="daily" checked /> Daily</label>
         <label><input type="radio" name="scheduleType" value="two-day" /> Two-Day Split</label>
+        <label><input type="radio" name="scheduleType" value="weekly" /> Weekly</label>
 
         <div id="day1Options">
           <h3>Day 1</h3>
@@ -75,6 +76,19 @@
         <div id="day2Options">
           <h3>Day 2</h3>
           <div class="exercise-list" data-day="2"></div>
+        </div>
+
+        <div id="weeklyOptions">
+          <h3>Weekly</h3>
+          <div class="weekday-list">
+            <label><input type="checkbox" name="weekday" value="monday" /> Monday</label>
+            <label><input type="checkbox" name="weekday" value="tuesday" /> Tuesday</label>
+            <label><input type="checkbox" name="weekday" value="wednesday" /> Wednesday</label>
+            <label><input type="checkbox" name="weekday" value="thursday" /> Thursday</label>
+            <label><input type="checkbox" name="weekday" value="friday" /> Friday</label>
+            <label><input type="checkbox" name="weekday" value="saturday" /> Saturday</label>
+            <label><input type="checkbox" name="weekday" value="sunday" /> Sunday</label>
+          </div>
         </div>
 
         <button type="submit">Save</button>
@@ -90,13 +104,11 @@
       kettlebell: ["kettlebellSwing","gobletSquat"],
       barbell: ["barbellSquat","deadlift","benchPress"]
     };
-
     let masterExercises = JSON.parse(localStorage.getItem("masterExercises") || "[]");
     if (!masterExercises.length) {
       masterExercises = [...defaultsByCategory.bodyweight];
       localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
     }
-
     const maxHistory = JSON.parse(localStorage.getItem("maxRepHistory") || "{}");
 
     function capitalize(str) {
@@ -131,17 +143,17 @@
     }
 
     function addCustomExercise() {
-    const name = document.getElementById("newExerciseName").value.trim();
-    if (!name) return;
-    const id = name.replace(/\s+/g, "").toLowerCase();
-    if (!masterExercises.includes(id)) {
-      masterExercises.push(id);
-      localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
-      renderLibrary();
-      buildScheduleLists();            // ← ADD THIS
+      const name = document.getElementById("newExerciseName").value.trim();
+      if (!name) return;
+      const id = name.replace(/\s+/g, "").toLowerCase();
+      if (!masterExercises.includes(id)) {
+        masterExercises.push(id);
+        localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
+        renderLibrary();
+        buildScheduleLists();
+      }
+      document.getElementById("newExerciseName").value = "";
     }
-    document.getElementById("newExerciseName").value = "";
-  }
 
     function buildScheduleLists() {
       document.querySelectorAll(".exercise-list[data-day]").forEach(div => {
@@ -168,26 +180,32 @@
       document.getElementById(id).style.display = checkbox.checked ? "block" : "none";
     }
 
-    function toggleDays() {
-      const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
-      document.getElementById('day2Options').style.display = (scheduleType === 'two-day') ? 'block' : 'none';
+    function toggleScheduleType() {
+      const t = document.querySelector('input[name="scheduleType"]:checked').value;
+      document.getElementById('day1Options').style.display   = (t === 'daily' || t === 'two-day') ? 'block' : 'none';
+      document.getElementById('day2Options').style.display   = (t === 'two-day') ? 'block' : 'none';
+      document.getElementById('weeklyOptions').style.display = (t === 'weekly') ? 'block' : 'none';
     }
 
     document.getElementById("scheduleForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const form = new FormData(this);
       const scheduleType = form.get("scheduleType");
-      const schedule = { type: scheduleType, day1: [], day2: [], config: {} };
-      masterExercises.forEach(ex => {
-        [1,2].forEach(day => {
-          if (form.getAll(`day${day}`).includes(ex)) {
-            schedule[`day${day}`].push(ex);
-            const sets = form.get(`${ex}_d${day}_sets`);
-            const reps = form.get(`${ex}_d${day}_reps`);
-            schedule.config[`${ex}_d${day}`] = { sets: Number(sets), reps: Number(reps) };
-          }
+      const schedule = { type: scheduleType, day1: [], day2: [], weekdays: [], config: {} };
+      if (scheduleType === 'weekly') {
+        schedule.weekdays = form.getAll("weekday");
+      } else {
+        masterExercises.forEach(ex => {
+          [1,2].forEach(day => {
+            if (form.getAll(`day${day}`).includes(ex)) {
+              schedule[`day${day}`].push(ex);
+              const sets = form.get(`${ex}_d${day}_sets`);
+              const reps = form.get(`${ex}_d${day}_reps`);
+              schedule.config[`${ex}_d${day}`] = { sets: Number(sets), reps: Number(reps) };
+            }
+          });
         });
-      });
+      }
       localStorage.setItem("masterExercises", JSON.stringify(masterExercises));
       localStorage.setItem("workoutSchedule", JSON.stringify(schedule));
       window.location.href = "index.html";
@@ -196,7 +214,7 @@
     // init
     renderLibrary();
     buildScheduleLists();
-    toggleDays();
+    toggleScheduleType();
   </script>
 </body>
 </html>
