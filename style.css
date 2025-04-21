@@ -1,31 +1,188 @@
+
+/* Base Styles */
 body {
   font-family: sans-serif;
-  margin: 1rem;
-  background: #f5f5f5;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 1rem;
 }
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-header button {
+header h1 {
+  margin: 0;
+}
+
+/* Collapsible Sections */
+.collapsible {
+  max-width: 600px;
+  margin: 1rem auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.collapsible header {
+  background: #007bff;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.collapsible .content {
+  display: none;
+  padding: 1rem;
+}
+.collapsible.open .content {
+  display: block;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  margin: 0.5rem 0;
+}
+h3 {
+  margin-top: 1rem;
+}
+
+/* Buttons */
+button,
+input[type="button"],
+button[type="submit"] {
   padding: 0.5rem 1rem;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover,
+input[type="button"]:hover,
+button[type="submit"]:hover {
+  background: #0056b3;
+}
+
+/* Forms */
+input[type="number"] {
+  width: 4rem;
   margin-left: 0.5rem;
 }
-section {
-  margin-top: 2rem;
+#customAdd {
+  display: flex;
+  margin: 1rem 0;
+}
+#customAdd input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+#customAdd button {
+  margin-left: 0.5rem;
+}
+
+/* Exercise & Max-Rep Cards */
+.exercise-card,
+.max-rep-card {
+  background: #eef2f5;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+.exercise-card h3,
+.max-rep-card h4 {
+  margin: 0;
+  text-align: center;
+}
+.max-rep-card p {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.25rem 0 0;
+}
+
+/* Grids */
+.max-reps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+/* Schedule Lists */
+.exercise-list label,
+.weekday-list label {
+  display: block;
+  margin: 0.25rem 0;
+}
+.exercise-config {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  background: #eef2f5;
+  padding: 0.5rem;
+  border-radius: 6px;
+  display: none;
+}
+
+/* Weekly Day Options */
+#weeklyDayOptions .exercise-day {
+  background: #f0f8ff;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Workout Sets UI */
+.sets-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.set-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #eef2f5;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+/* Max Entry Section */
+#maxEntrySection {
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 0 5px #ccc;
 }
-.exercise-block {
-  margin-bottom: 1rem;
+#maxEntrySection.hidden {
+  display: none;
 }
-.exercise-block label {
+#maxEntryInputs label {
   display: block;
   margin: 0.5rem 0;
 }
-canvas {
-  max-width: 100%;
+.no-data {
+  font-style: italic;
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+/* Charts Section */
+#workoutGraph,
+#maxRepsCharts {
+  max-width: 600px;
+  margin: 1rem auto;
+}
+
+/* Utility */
+a {
+  color: inherit;
+  text-decoration: none;
 }
