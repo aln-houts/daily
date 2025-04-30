@@ -10,10 +10,11 @@ function getTodayKey() {
 }
 
 // Timer state
-let timerInterval;
-let remainingTime = 0;
-let remainingRounds = 0;
+let timerInterval = null;
+let currentSet = 0;
+let totalSets = 0;
 let timerRunning = false;
+let remainingTime = 0;
 
 // Format seconds to MM:SS
 function formatTime(sec) {
@@ -41,70 +42,81 @@ function playBell() {
   osc.stop(ctx.currentTime + 0.5);
 }
 
-// Timer countdown logic
-let preInterval;
-let workInterval;
-let currentRound = 0;
+// Start the timer
+function startTimer() {
+  const duration = Number(document.getElementById('setTimerDuration').value); // Time per set
+  totalSets = Number(document.getElementById('timerRounds').value); // Total sets
 
-function startPreCountdown(onComplete) {
-  clearInterval(preInterval);
-  let count = 3;
-  document.getElementById('timerDisplay').textContent = formatTime(count);
-  preInterval = setInterval(() => {
-    count--;
-    if (count > 0) {
-      playBeep();
-      document.getElementById('timerDisplay').textContent = formatTime(count);
-    } else {
-      clearInterval(preInterval);
-      onComplete();
-    }
-  }, 1000);
-}
-
-function startWorkTimer() {
-  clearInterval(workInterval);
-  remainingTime = Number(document.getElementById('setTimerDuration').value);
-  document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
-  workInterval = setInterval(() => {
-    remainingTime--;
-    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
-    if (remainingTime <= 0) {
-      clearInterval(workInterval);
-      nextRound();
-    }
-  }, 1000);
-}
-
-function nextRound() {
-  if (currentRound < remainingRounds - 1) {
-    currentRound++;
-    startPreCountdown(startWorkTimer);
-  } else {
-    playBell();
-    document.getElementById('timerToggleBtn').textContent = 'Start';
-    timerRunning = false;
+  if (isNaN(duration) || duration <= 0 || isNaN(totalSets) || totalSets <= 0) {
+    alert('Please enter valid duration and number of sets.');
+    return;
   }
+
+  // Initialize timer state
+  currentSet = 1; // Start from the first set
+  remainingTime = duration; // Set the initial time
+  timerRunning = true;
+
+  // Update the button text
+  const btn = document.getElementById('timerToggleBtn');
+  btn.textContent = 'Pause';
+
+  // Start the countdown
+  runTimer(duration);
 }
 
+// Run the timer for the current set
+function runTimer(duration) {
+  clearInterval(timerInterval); // Clear any existing interval
+  remainingTime = duration;
+
+  // Update the display with the initial time
+  document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+
+  timerInterval = setInterval(() => {
+    remainingTime--;
+
+    // Beep on the last 3 seconds
+    if (remainingTime <= 3 && remainingTime > 0) {
+      playBeep();
+    }
+
+    // Update the timer display
+    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+
+    // When the timer reaches 0
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      currentSet++;
+
+      if (currentSet > totalSets) {
+        // All sets completed
+        playBell();
+        document.getElementById('timerToggleBtn').textContent = 'Start';
+        timerRunning = false;
+        document.getElementById('timerDisplay').textContent = '00:00';
+      } else {
+        // Move to the next set
+        playBell();
+        runTimer(duration); // Start the next set
+      }
+    }
+  }, 1000);
+}
+
+// Pause the timer
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById('timerToggleBtn').textContent = 'Start';
+}
+
+// Toggle the timer (start or pause)
 function toggleTimer() {
-  const btn = document.getElementById('timerToggleBtn');
-  if (!timerRunning) {
-    remainingRounds = Number(document.getElementById('timerRounds').value);
-    currentRound = 0;
-    btn.textContent = 'Pause';
-    btn.disabled = true;
-    startPreCountdown(() => {
-      btn.disabled = false;
-      startWorkTimer();
-    });
-    timerRunning = true;
+  if (timerRunning) {
+    pauseTimer();
   } else {
-    clearInterval(preInterval);
-    clearInterval(workInterval);
-    btn.textContent = 'Start';
-    btn.disabled = false;
-    timerRunning = false;
+    startTimer();
   }
 }
 
@@ -177,14 +189,34 @@ function loadWorkoutGraph() {
   const data = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const labels = Object.keys(data);
   const totals = labels.map(date =>
-    Object.values(data[date]).reduce((sum, ex) =>
-      sum + ex.sets.reduce((s, st) => s + st.reps, 0), 0)
+    Object.values(data[date] || {}).reduce((sum, ex) =>
+      sum + (ex.sets || []).reduce((s, st) => s + (st.reps || 0), 0), 0)
   );
+
+  if (!labels.length) {
+    console.warn('No workout data available for the graph.');
+    return;
+  }
+
   const ctx = document.getElementById('workoutChart').getContext('2d');
   new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets: [{ label: 'Total Reps', data: totals, fill: false, tension: 0.2 }] },
-    options: { scales: { x: { type: 'category' }, y: { beginAtZero: true } } }
+    data: {
+      labels,
+      datasets: [{
+        label: 'Total Reps',
+        data: totals,
+        fill: false,
+        borderColor: 'blue',
+        tension: 0.2
+      }]
+    },
+    options: {
+      scales: {
+        x: { type: 'category' },
+        y: { beginAtZero: true }
+      }
+    }
   });
 }
 

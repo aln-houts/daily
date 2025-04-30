@@ -1,7 +1,6 @@
-
 /* Base Styles */
 body {
-  font-family: sans-serif;
+  font-family: 'Arial', sans-serif;
   background: #f9f9f9;
   margin: 0;
   padding: 1rem;
@@ -12,7 +11,7 @@ header {
   align-items: center;
   padding: 1rem;
   background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 header h1 {
   margin: 0;
@@ -24,7 +23,7 @@ header h1 {
   margin: 1rem auto;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 .collapsible header {
@@ -94,7 +93,7 @@ input[type="number"] {
   background: #eef2f5;
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
 }
 .exercise-card h3,
