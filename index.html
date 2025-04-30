@@ -4,96 +4,66 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Workout</title>
+  <!-- Add Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
-  <style>
-    /* Timer Controls */
-    #timerControl {
-      max-width: 600px;
-      margin: 1rem auto;
-      text-align: center;
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    #timerSettings {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    #timerSettings label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    #timerDisplay {
-      font-size: 5rem;
-      font-weight: bold;
-      margin-top: 0.5rem;
-      width: 100%;
-    }
-    /* Workout Cards Grid */
-    #workoutSection {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-      gap: 1rem;
-      max-width: 800px;
-      margin: 1rem auto;
-    }
-    .exercise-card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .exercise-card h3 {
-      margin-top: 0;
-      text-align: center;
-    }
-    .sets-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-    .set-item {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      background: #eef2f5;
-      border-radius: 6px;
-      padding: 0.5rem;
-    }
-  </style>
 </head>
-<body>
-  <header>
+<body class="bg-light">
+  <header class="text-center py-3 bg-primary text-white">
     <h1>Workout</h1>
-    <button onclick="location.href='max-reps.html'">Max Reps</button>
-    <button onclick="location.href='schedule.html'">Schedule</button>
+    <div class="d-flex justify-content-center gap-2">
+      <button class="btn btn-secondary" onclick="location.href='max-reps.html'">Max Reps</button>
+      <button class="btn btn-secondary" onclick="location.href='schedule.html'">Schedule</button>
+    </div>
   </header>
 
-  <section id="timerControl">
-    <div id="timerSettings">
-      <label>Duration (sec): <input type="number" id="setTimerDuration" value="120" min="1"/></label>
-      <label>Rounds: <input type="number" id="timerRounds" min="1" value="1"/></label>
+  <section id="timerControl" class="container my-4 p-4 bg-white rounded shadow">
+    <div id="timerSettings" class="d-flex justify-content-center gap-3 mb-3">
+      <label class="d-flex align-items-center gap-2">
+        Duration (sec): <input type="number" id="setTimerDuration" class="form-control" value="120" min="1"/>
+      </label>
+      <label class="d-flex align-items-center gap-2">
+        Rounds: <input type="number" id="timerRounds" class="form-control" min="1" value="1"/>
+      </label>
     </div>
-    <button id="timerToggleBtn">Start</button>
-    <div id="timerDisplay">00:00</div>
+    <button id="timerToggleBtn" class="btn btn-primary w-100">Start</button>
+    <div id="timerDisplay" class="display-1 text-center mt-3">00:00</div>
   </section>
 
-  <section id="workoutSection">
-    <!-- Workout cards inserted here -->
+  <section id="workoutSection" class="container my-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-center">Exercise Name</h5>
+            <div class="sets-container">
+              <div class="set-item">
+                <input type="number" name="exercise1_set1_reps" class="form-control text-center" value="10" min="0" />
+                <input type="radio" name="exercise1_set1_completed" />
+              </div>
+              <div class="set-item">
+                <input type="number" name="exercise1_set2_reps" class="form-control text-center" value="12" min="0" />
+                <input type="radio" name="exercise1_set2_completed" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Repeat for other workout cards -->
+    </div>
   </section>
 
-  <button id="saveWorkoutButton">Save Workout</button>
+  <div class="text-center">
+    <button id="saveWorkoutButton" class="btn btn-success">Save Workout</button>
+  </div>
 
-  <section id="workoutGraph">
-    <h2>Total Reps Per Workout</h2>
+  <section id="workoutGraph" class="container my-4">
+    <h2 class="text-center">Total Reps Per Workout</h2>
     <canvas id="workoutChart"></canvas>
   </section>
 
+  <!-- Add Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.umd.min.js"></script>
   <script src="index.js"></script>
 </body>

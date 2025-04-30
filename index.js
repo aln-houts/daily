@@ -10,11 +10,14 @@ function getTodayKey() {
 }
 
 // Timer state
-let timerInterval = null;
-let currentSet = 0;
-let totalSets = 0;
-let timerRunning = false;
-let remainingTime = 0;
+let timerInterval;
+let currentRound = 1;
+let totalRounds;
+let duration;
+let remainingTime;
+
+// Load beep sound
+const beep = new Audio('beep.mp3'); // Ensure you have a `beep.mp3` file in your project
 
 // Format seconds to MM:SS
 function formatTime(sec) {
@@ -44,80 +47,55 @@ function playBell() {
 
 // Start the timer
 function startTimer() {
-  const duration = Number(document.getElementById('setTimerDuration').value); // Time per set
-  totalSets = Number(document.getElementById('timerRounds').value); // Total sets
+  const durationInput = document.getElementById('setTimerDuration');
+  const roundsInput = document.getElementById('timerRounds');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const timerToggleBtn = document.getElementById('timerToggleBtn');
 
-  if (isNaN(duration) || duration <= 0 || isNaN(totalSets) || totalSets <= 0) {
-    alert('Please enter valid duration and number of sets.');
-    return;
-  }
-
-  // Initialize timer state
-  currentSet = 1; // Start from the first set
-  remainingTime = duration; // Set the initial time
-  timerRunning = true;
-
-  // Update the button text
-  const btn = document.getElementById('timerToggleBtn');
-  btn.textContent = 'Pause';
-
-  // Start the countdown
-  runTimer(duration);
-}
-
-// Run the timer for the current set
-function runTimer(duration) {
-  clearInterval(timerInterval); // Clear any existing interval
+  duration = parseInt(durationInput.value, 10);
+  totalRounds = parseInt(roundsInput.value, 10);
   remainingTime = duration;
+  currentRound = 1;
 
-  // Update the display with the initial time
-  document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
+  timerToggleBtn.textContent = 'Stop';
+  timerToggleBtn.onclick = stopTimer;
+
+  updateDisplay(timerDisplay, remainingTime);
 
   timerInterval = setInterval(() => {
-    remainingTime--;
+    if (remainingTime > 0) {
+      remainingTime--;
 
-    // Beep on the last 3 seconds
-    if (remainingTime <= 3 && remainingTime > 0) {
-      playBeep();
-    }
+      // Play beep sound for the last 3 seconds
+      if (remainingTime <= 3 && remainingTime > 0) {
+        beep.play();
+      }
 
-    // Update the timer display
-    document.getElementById('timerDisplay').textContent = formatTime(remainingTime);
-
-    // When the timer reaches 0
-    if (remainingTime <= 0) {
-      clearInterval(timerInterval);
-      currentSet++;
-
-      if (currentSet > totalSets) {
-        // All sets completed
-        playBell();
-        document.getElementById('timerToggleBtn').textContent = 'Start';
-        timerRunning = false;
-        document.getElementById('timerDisplay').textContent = '00:00';
+      updateDisplay(timerDisplay, remainingTime);
+    } else {
+      // End of the current round
+      if (currentRound < totalRounds) {
+        currentRound++;
+        remainingTime = duration; // Reset for the next round
       } else {
-        // Move to the next set
-        playBell();
-        runTimer(duration); // Start the next set
+        // All rounds complete
+        stopTimer();
+        alert('Workout complete!');
       }
     }
   }, 1000);
 }
 
-// Pause the timer
-function pauseTimer() {
+function stopTimer() {
   clearInterval(timerInterval);
-  timerRunning = false;
   document.getElementById('timerToggleBtn').textContent = 'Start';
+  document.getElementById('timerToggleBtn').onclick = startTimer;
 }
 
-// Toggle the timer (start or pause)
-function toggleTimer() {
-  if (timerRunning) {
-    pauseTimer();
-  } else {
-    startTimer();
-  }
+function updateDisplay(displayElement, time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  displayElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 // Load workout page
@@ -221,7 +199,7 @@ function loadWorkoutGraph() {
 }
 
 // Event listeners
-document.getElementById('timerToggleBtn').addEventListener('click', toggleTimer);
+document.getElementById('timerToggleBtn').onclick = startTimer;
 document.getElementById('saveWorkoutButton').addEventListener('click', saveWorkout);
 
 window.onload = () => {
