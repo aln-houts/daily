@@ -39,22 +39,56 @@ function loadMaxRepsCharts() {
       const canvas = document.createElement('canvas');
       canvas.id = 'chart_' + ex;
       section.appendChild(canvas);
-      const ctx = canvas.getContext('2d');
-      const labels = entries.map(e => e.date);
-      const data = entries.map(e => e.value);
-      if (charts[ex]) charts[ex].destroy();
-      charts[ex] = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets: [{ label: 'Max Reps', data, fill: false, tension: 0.2, pointRadius: 6 }] },
-        options: {
-          scales: {
-            x: { type: 'category', title: { display: true, text: 'Date' } },
-            y: { beginAtZero: true, title: { display: true, text: 'Reps' } }
-          }
-        }
-      });
+      renderGraph(ex);
     }
     chartsSection.appendChild(section);
+  });
+}
+
+function renderGraph(exercise) {
+  const ctx = document.getElementById(`chart_${exercise}`).getContext('2d');
+  const history = historyData[exercise] || []; // Use `historyData` for consistency
+  const labels = history.map(entry => new Date(entry.date).toLocaleDateString());
+  const data = history.map(entry => entry.value); // Use `value` for max reps
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Max Reps Over Time',
+        data: data,
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Reps'
+          },
+          beginAtZero: true,
+          ticks: {
+            stepSize: 5, // Ensure increments of 5
+            callback: function(value) {
+              return Number.isInteger(value) ? value : ''; // Only show integer values
+            }
+          }
+        }
+      }
+    }
   });
 }
 

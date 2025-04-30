@@ -5,24 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Schedule</title>
   <link rel="stylesheet" href="style.css"/>
-  <style>
-    body { font-family: sans-serif; background: #f9f9f9; margin: 0; padding: 1rem; }
-    .collapsible { max-width: 600px; margin: 1rem auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .collapsible header { background: #007bff; color: #fff; padding: 0.75rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .collapsible .content { display: none; padding: 1rem; }
-    .collapsible.open .content { display: block; }
-    .mode-select, .generic-panels, .weekday-list, #weekdayPanels { max-width: 600px; margin: auto; }
-    .mode-select { text-align: center; padding: 1rem; }
-    .weekday-list { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 0.5rem 0; }
-    .weekday-list label, .generic-panels label { width: 30%; display: block; margin: 0.25rem 0; }
-    .day-panel { background: #eef2f5; margin: 1rem auto; padding: 1rem; border-radius: 8px; max-width: 600px; }
-    .exercise-config { margin-left: 1rem; display: none; margin-bottom: 0.5rem; }
-    button { padding: 0.75rem 1.5rem; margin: 1rem; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    input[type="number"], select { margin-left: 0.5rem; margin-top: 0.25rem; }
-  </style>
 </head>
-<body>
+<body class="bg-light">
+  <header class="text-center py-3 bg-primary text-white">
+    <h1>Schedule</h1>
+    <div class="d-flex justify-content-center gap-2">
+      <button class="btn btn-secondary" onclick="location.href='index.html'">Workout</button>
+      <button class="btn btn-secondary" onclick="location.href='max-reps.html'">Max Reps</button>
+    </div>
+  </header>
 
   <!-- Exercise Library -->
   <section class="collapsible" id="librarySection">
@@ -62,11 +53,11 @@
 
   <script>
     const defaultsByCategory = {
-      bodyweight: ["pushups","pullups","squats","toeToBar"],
-      cardio: ["running","jumpRope","burpees"],
-      dumbbell: ["dumbbellRow","dumbbellPress"],
-      kettlebell: ["kettlebellSwing","gobletSquat"],
-      barbell: ["barbellSquat","deadlift","benchPress"]
+      bodyweight: ["pushups","pullups","squats","toeToBar","Situps","plank","lunges","dips"],
+      cardio: ["running","jumpRope","burpees","mountainClimbers","highKnees","jumpingJacks"],
+      dumbbell: ["dumbbellRow","dumbbellPress","deadlift","dumbbellSquat","dumbbellLunge"],
+      kettlebell: ["kettlebellSwing","gobletSquat","snatch","kettlebellPress","kettlebellDeadlift"],
+      barbell: ["barbellSquat","deadlift","benchPress","overheadPress","barbellRow","barbellCurl"]
     };
     let masterExercises = JSON.parse(localStorage.getItem('masterExercises')||'[]');
     if(!masterExercises.length) masterExercises = defaultsByCategory.bodyweight.slice();
@@ -300,5 +291,6 @@
 
     window.onload=applyMode;
   </script>
+  <script src="index.js"></script>
 </body>
 </html>

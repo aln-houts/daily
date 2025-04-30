@@ -1,8 +1,8 @@
 // index.js - Unified byDay schedule only
 
-// Utility functions
+// Shared Utilities
 function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, ' $1');
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function getTodayKey() {
@@ -196,6 +196,149 @@ function loadWorkoutGraph() {
       }
     }
   });
+}
+
+// Shared Data
+const defaultsByCategory = {
+  bodyweight: ["pushups", "pullups", "squats", "toeToBar"],
+  cardio: ["running", "jumpRope", "burpees"],
+  dumbbell: ["dumbbellRow", "dumbbellPress"],
+  kettlebell: ["kettlebellSwing", "gobletSquat"],
+  barbell: ["barbellSquat", "deadlift", "benchPress"]
+};
+let masterExercises = JSON.parse(localStorage.getItem('masterExercises') || '[]');
+if (!masterExercises.length) masterExercises = defaultsByCategory.bodyweight.slice();
+
+// Detect Current Page
+const currentPage = window.location.pathname.split('/').pop();
+
+// Page-Specific Logic
+if (currentPage === 'index.html') {
+  // Timer and Workout Page Logic
+  document.getElementById('timerToggleBtn')?.addEventListener('click', function () {
+    // Timer logic here
+    console.log('Timer toggled');
+  });
+}
+
+if (currentPage === 'max-reps.html') {
+  // Max Reps Page Logic
+  const maxReps = JSON.parse(localStorage.getItem('maxReps') || '{}');
+  const maxRepsHistory = JSON.parse(localStorage.getItem('maxRepsHistory') || '{}');
+
+  function populateMaxReps() {
+    const exerciseCards = document.getElementById('exerciseCards');
+    exerciseCards.innerHTML = '';
+
+    if (masterExercises.length === 0) {
+      exerciseCards.innerHTML = '<p class="text-center text-muted">No exercises available. Add exercises in the Schedule page.</p>';
+      return;
+    }
+
+    masterExercises.forEach(exercise => {
+      const currentMax = maxReps[exercise] || 0;
+
+      const cardHTML = `
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title text-center">${capitalize(exercise)}</h5>
+            <form onsubmit="saveMaxReps(event, '${exercise}')">
+              <div class="mb-3">
+                <label for="maxRepsInput_${exercise}" class="form-label">Max Reps</label>
+                <input type="number" class="form-control text-center" id="maxRepsInput_${exercise}" value="${currentMax}" min="0" />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Save</button>
+            </form>
+            <canvas id="chart_${exercise}" class="mt-4" style="max-height: 300px; width: 100%;"></canvas>
+          </div>
+        </div>
+      `;
+
+      exerciseCards.insertAdjacentHTML('beforeend', cardHTML);
+      renderGraph(exercise);
+    });
+  }
+
+  function saveMaxReps(event, exercise) {
+    event.preventDefault();
+    const input = document.getElementById(`maxRepsInput_${exercise}`);
+    const value = parseInt(input.value, 10);
+
+    if (!isNaN(value) && value >= 0) {
+      maxReps[exercise] = value;
+      if (!maxRepsHistory[exercise]) maxRepsHistory[exercise] = [];
+      maxRepsHistory[exercise].push({ date: new Date().toISOString(), reps: value });
+      localStorage.setItem('maxReps', JSON.stringify(maxReps));
+      localStorage.setItem('maxRepsHistory', JSON.stringify(maxRepsHistory));
+      renderGraph(exercise);
+    }
+  }
+
+  function renderGraph(exercise) {
+    const ctx = document.getElementById(`chart_${exercise}`).getContext('2d');
+    const history = maxRepsHistory[exercise] || [];
+    const labels = history.map(entry => new Date(entry.date).toLocaleDateString());
+    const data = history.map(entry => entry.reps);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Max Reps Over Time',
+          data: data,
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0, 123, 255, 0.2)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 5
+            }
+          }
+        }
+      }
+    });
+  }
+
+  window.onload = populateMaxReps;
+}
+
+if (currentPage === 'schedule.html') {
+  // Schedule Page Logic
+  function renderLibrary() {
+    const flatDefaults = Object.values(defaultsByCategory).flat();
+    Object.entries(defaultsByCategory).forEach(([cat, list]) => {
+      const cont = document.getElementById('lib-' + cat);
+      cont.innerHTML = '';
+      list.forEach(ex => {
+        cont.insertAdjacentHTML('beforeend',
+          `<label><input type="checkbox" name="masterEx" value="${ex}" ${masterExercises.includes(ex) ? 'checked' : ''}/> ${capitalize(ex)}</label>`
+        );
+      });
+    });
+  }
+
+  function addCustomExercise() {
+    const name = document.getElementById('newExerciseName').value.trim();
+    if (!name) return;
+    const id = name.replace(/\s+/g, '').toLowerCase();
+    if (!masterExercises.includes(id)) {
+      masterExercises.push(id);
+      localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
+    }
+    document.getElementById('newExerciseName').value = '';
+    renderLibrary();
+  }
+
+  window.onload = renderLibrary;
 }
 
 // Event listeners
