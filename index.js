@@ -101,7 +101,7 @@ function updateDisplay(displayElement, time) {
 // Load workout page
 function loadWorkoutPage() {
   const section = document.getElementById('workoutSection');
-  section.innerHTML = '<h2>Today\'s Workout</h2>';
+  const row = section.querySelector('.row'); // Select the row inside the workoutSection
   const schedule = JSON.parse(localStorage.getItem('workoutSchedule') || '{}');
   const logs = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
   const todayKey = getTodayKey();
@@ -120,12 +120,23 @@ function loadWorkoutPage() {
   exercises.forEach(ex => {
     const cfg = schedule.config?.[`${ex}_${todayIdx}`] || { sets: 1, reps: 0 };
     totalSets += cfg.sets;
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.dataset.exercise = ex;
-    card.innerHTML = `<h3>${capitalize(ex)}</h3><div class="sets-container" id="sets_${ex}"></div>`;
-    section.appendChild(card);
 
+    // Create a Bootstrap card
+    const card = document.createElement('div');
+    card.className = 'col-md-4'; // Bootstrap column class for responsive layout
+    card.innerHTML = `
+      <div class="card shadow-sm exercise-card" data-exercise="${ex}">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-3">${capitalize(ex)}</h5>
+          <div class="row g-3" id="sets_${ex}">
+            <!-- Sets will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+    `;
+    row.appendChild(card); // Append the card to the row
+
+    // Add sets to the sets container
     const container = document.getElementById(`sets_${ex}`);
     const logEx = todayLog[ex] || { sets: [] };
     for (let i = 1; i <= cfg.sets; i++) {
@@ -133,10 +144,15 @@ function loadWorkoutPage() {
       const repsVal = typeof prev.reps === 'number' ? prev.reps : cfg.reps;
       const completed = prev.completed ? 'checked' : '';
       container.innerHTML += `
-        <div class="set-item">
-          <input type="radio" name="${ex}_set${i}_completed" ${completed}/>
-          <input type="number" name="${ex}_set${i}_reps" value="${repsVal}" min="0"/>
-        </div>`;
+        <div class="row align-items-center mb-2">
+          <div class="col-auto">
+            <input type="radio" name="${ex}_set${i}_completed" ${completed} class="form-check-input" />
+          </div>
+          <div class="col">
+            <input type="number" name="${ex}_set${i}_reps" value="${repsVal}" min="0" class="form-control" />
+          </div>
+        </div>
+      `;
     }
   });
 
@@ -160,43 +176,8 @@ function saveWorkout() {
   logs[todayKey] = todayLog;
   localStorage.setItem('workoutLogs', JSON.stringify(logs));
   alert('Workout saved!');
-  loadWorkoutGraph();
 }
 
-function loadWorkoutGraph() {
-  const data = JSON.parse(localStorage.getItem('workoutLogs') || '{}');
-  const labels = Object.keys(data);
-  const totals = labels.map(date =>
-    Object.values(data[date] || {}).reduce((sum, ex) =>
-      sum + (ex.sets || []).reduce((s, st) => s + (st.reps || 0), 0), 0)
-  );
-
-  if (!labels.length) {
-    console.warn('No workout data available for the graph.');
-    return;
-  }
-
-  const ctx = document.getElementById('workoutChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Total Reps',
-        data: totals,
-        fill: false,
-        borderColor: 'blue',
-        tension: 0.2
-      }]
-    },
-    options: {
-      scales: {
-        x: { type: 'category' },
-        y: { beginAtZero: true }
-      }
-    }
-  });
-}
 
 // Shared Data
 const defaultsByCategory = {
@@ -313,39 +294,101 @@ if (currentPage === 'max-reps.html') {
 
 if (currentPage === 'schedule.html') {
   // Schedule Page Logic
-  function renderLibrary() {
-    const flatDefaults = Object.values(defaultsByCategory).flat();
-    Object.entries(defaultsByCategory).forEach(([cat, list]) => {
-      const cont = document.getElementById('lib-' + cat);
-      cont.innerHTML = '';
-      list.forEach(ex => {
-        cont.insertAdjacentHTML('beforeend',
-          `<label><input type="checkbox" name="masterEx" value="${ex}" ${masterExercises.includes(ex) ? 'checked' : ''}/> ${capitalize(ex)}</label>`
-        );
-      });
+
+  // Default workout schedule structure
+  const defaultSchedule = {
+    byDay: {
+      sunday: ["pushups", "squats"],
+      monday: ["pullups", "lunges"],
+      tuesday: ["plank", "situps"],
+      wednesday: ["running"],
+      thursday: ["burpees"],
+      friday: ["jumpRope"],
+      saturday: []
+    },
+    config: {}
+  };
+
+  // Load or initialize workout schedule
+  let workoutSchedule = JSON.parse(localStorage.getItem('workoutSchedule') || 'null');
+  if (!workoutSchedule) {
+    workoutSchedule = defaultSchedule;
+    localStorage.setItem('workoutSchedule', JSON.stringify(workoutSchedule));
+  }
+
+  // Render the schedule for editing
+  function renderSchedule() {
+    const container = document.getElementById('weekdayPanels');
+    container.innerHTML = ''; // Clear existing content
+
+    Object.entries(workoutSchedule.byDay).forEach(([day, exercises]) => {
+      const panel = document.createElement('div');
+      panel.className = 'day-panel';
+      panel.innerHTML = `
+        <h3>${capitalize(day)}</h3>
+        <div class="exercise-list">
+          ${exercises.map(ex => `
+            <div class="exercise-item">
+              <span>${capitalize(ex)}</span>
+              <button class="btn btn-sm btn-danger" onclick="removeExercise('${day}', '${ex}')">Remove</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="add-exercise">
+          <input type="text" id="newExercise_${day}" placeholder="Add exercise" class="form-control mb-2" />
+          <button class="btn btn-primary" onclick="addExercise('${day}')">Add</button>
+        </div>
+      `;
+      container.appendChild(panel);
     });
   }
 
-  function addCustomExercise() {
-    const name = document.getElementById('newExerciseName').value.trim();
-    if (!name) return;
-    const id = name.replace(/\s+/g, '').toLowerCase();
-    if (!masterExercises.includes(id)) {
-      masterExercises.push(id);
-      localStorage.setItem('masterExercises', JSON.stringify(masterExercises));
+  // Add a new exercise to a specific day
+  function addExercise(day) {
+    const input = document.getElementById(`newExercise_${day}`);
+    const exercise = input.value.trim().toLowerCase();
+    if (exercise) {
+      workoutSchedule.byDay[day].push(exercise);
+      localStorage.setItem('workoutSchedule', JSON.stringify(workoutSchedule));
+      renderSchedule();
     }
-    document.getElementById('newExerciseName').value = '';
-    renderLibrary();
+    input.value = ''; // Clear the input field
   }
 
-  window.onload = renderLibrary;
+  // Remove an exercise from a specific day
+  function removeExercise(day, exercise) {
+    workoutSchedule.byDay[day] = workoutSchedule.byDay[day].filter(ex => ex !== exercise);
+    localStorage.setItem('workoutSchedule', JSON.stringify(workoutSchedule));
+    renderSchedule();
+  }
+
+  // Capitalize helper function
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Render the schedule on page load
+  window.onload = renderSchedule;
 }
 
 // Event listeners
-document.getElementById('timerToggleBtn').onclick = startTimer;
-document.getElementById('saveWorkoutButton').addEventListener('click', saveWorkout);
+const timerToggleBtn = document.getElementById('timerToggleBtn');
+if (timerToggleBtn) {
+  timerToggleBtn.onclick = startTimer;
+}
 
+const saveWorkoutButton = document.getElementById('saveWorkoutButton');
+if (saveWorkoutButton) {
+  saveWorkoutButton.addEventListener('click', saveWorkout);
+}
+
+// Page-specific logic
 window.onload = () => {
-  loadWorkoutPage();
-  loadWorkoutGraph();
+  if (currentPage === 'index.html') {
+    loadWorkoutPage();
+  } else if (currentPage === 'max-reps.html') {
+    populateMaxReps();
+  } else if (currentPage === 'schedule.html') {
+    renderSchedule();
+  }
 };

@@ -4,60 +4,123 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Schedule</title>
+  <!-- Add Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body class="bg-light">
   <header class="text-center py-3 bg-primary text-white">
     <h1>Schedule</h1>
     <div class="d-flex justify-content-center gap-2">
-      <button class="btn btn-secondary" onclick="location.href='index.html'">Workout</button>
       <button class="btn btn-secondary" onclick="location.href='max-reps.html'">Max Reps</button>
+      <button class="btn btn-secondary" onclick="location.href='index.html'">Workout</button>
+      <button class="btn btn-primary">Schedule</button>
     </div>
   </header>
 
   <!-- Exercise Library -->
-  <section class="collapsible" id="librarySection">
-    <header onclick="toggleSection('librarySection')">
-      <h2>Manage Your Exercises</h2><span>+</span>
+  <section class="collapsible container my-4" id="librarySection">
+    <header onclick="toggleSection('librarySection')" class="bg-primary text-white p-3 rounded d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">Manage Your Exercises</h2>
+      <span>+</span>
     </header>
-    <div class="content">
-      <div><h3>Bodyweight</h3><div id="lib-bodyweight"></div></div>
-      <div><h3>Cardio</h3><div id="lib-cardio"></div></div>
-      <div><h3>Dumbbell</h3><div id="lib-dumbbell"></div></div>
-      <div><h3>Kettlebell</h3><div id="lib-kettlebell"></div></div>
-      <div><h3>Barbell</h3><div id="lib-barbell"></div></div>
-      <div><h3>Custom</h3><div id="lib-custom"></div></div>
-      <div id="customAdd">
-        <input id="newExerciseName" placeholder="Add custom exercise"/>
-        <button onclick="addCustomExercise()">Add</button>
+    <div class="content p-3 bg-white rounded shadow">
+      <div class="row">
+        <div class="col-md-6">
+          <h3>Bodyweight</h3>
+          <div id="lib-bodyweight" class="list-group"></div>
+        </div>
+        <div class="col-md-6">
+          <h3>Cardio</h3>
+          <div id="lib-cardio" class="list-group"></div>
+        </div>
+        <div class="col-md-6">
+          <h3>Dumbbell</h3>
+          <div id="lib-dumbbell" class="list-group"></div>
+        </div>
+        <div class="col-md-6">
+          <h3>Kettlebell</h3>
+          <div id="lib-kettlebell" class="list-group"></div>
+        </div>
+        <div class="col-md-6">
+          <h3>Barbell</h3>
+          <div id="lib-barbell" class="list-group"></div>
+        </div>
+        <div class="col-md-6">
+          <h3>Custom</h3>
+          <div id="lib-custom" class="list-group"></div>
+        </div>
+      </div>
+      <div id="customAdd" class="mt-3">
+        <input id="newExerciseName" class="form-control mb-2" placeholder="Add custom exercise"/>
+        <button class="btn btn-primary w-100" onclick="addCustomExercise()">Add</button>
       </div>
     </div>
   </section>
 
   <!-- Mode Selector -->
-  <section class="mode-select">
-    <h2>Pick Schedule Mode</h2>
-    <label><input type="radio" name="mode" value="daily" checked/> Daily</label>
-    <label><input type="radio" name="mode" value="two-day"/> Two-Day Split</label>
-    <label><input type="radio" name="mode" value="manual"/> Manual</label>
+  <section class="mode-select container my-4">
+    <h2 class="text-center">Pick Schedule Mode</h2>
+    <div class="d-flex justify-content-center gap-3">
+      <label class="btn btn-outline-primary">
+        <input type="radio" name="mode" value="daily" checked class="form-check-input me-2"/> Daily
+      </label>
+      <label class="btn btn-outline-primary">
+        <input type="radio" name="mode" value="two-day" class="form-check-input me-2"/> Two-Day Split
+      </label>
+      <label class="btn btn-outline-primary">
+        <input type="radio" name="mode" value="manual" class="form-check-input me-2"/> Manual
+      </label>
+    </div>
   </section>
 
   <!-- Generic Panels -->
-  <section class="generic-panels" id="genericPanels"></section>
+  <section class="generic-panels container my-4" id="genericPanels"></section>
 
   <!-- Manual Weekday Selection -->
-  <section class="weekday-list" id="weekdayList"></section>
-  <div id="weekdayPanels"></div>
+  <section class="weekday-list container my-4" id="weekdayList"></section>
+  <div class="container my-4" id="weekdayPanels">
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title text-center">Sunday</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input me-2" name="day_0" value="pushups"/> Pushups
+            </label>
+            <div id="pushups_0" class="exercise-config mt-2">
+              Sets:<input type="number" class="form-control mb-2" name="pushups_0_sets" min="1" value="3"/>
+              Reps:<input type="number" class="form-control mb-2" name="pushups_0_reps" min="1" value="1"/>
+              Band:<select class="form-select mb-2" name="pushups_0_band">
+                <option value="none">No band</option>
+                <option value="Light">Light</option>
+                <option value="Medium">Medium</option>
+                <option value="Heavy">Heavy</option>
+                <option value="X-Heavy">X-Heavy</option>
+              </select>
+              <select class="form-select mb-2" name="pushups_0_bandType">
+                <option value="Assistance">Assistance</option>
+                <option value="Resistance">Resistance</option>
+              </select>
+            </div>
+          </div>
+          <!-- Repeat for other exercises -->
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div style="text-align:center;"><button id="saveBtn">Save Schedule</button></div>
+  <div class="text-center">
+    <button id="saveBtn" class="btn btn-success">Save Schedule</button>
+  </div>
 
   <script>
     const defaultsByCategory = {
-      bodyweight: ["pushups","pullups","squats","toeToBar","Situps","plank","lunges","dips"],
-      cardio: ["running","jumpRope","burpees","mountainClimbers","highKnees","jumpingJacks"],
-      dumbbell: ["dumbbellRow","dumbbellPress","deadlift","dumbbellSquat","dumbbellLunge"],
-      kettlebell: ["kettlebellSwing","gobletSquat","snatch","kettlebellPress","kettlebellDeadlift"],
-      barbell: ["barbellSquat","deadlift","benchPress","overheadPress","barbellRow","barbellCurl"]
+      bodyweight: ["pushups","pullups","squats","toeToBar","plank","situps","lunges","dips"],
+      cardio: ["running","jumpRope","burpees",  "mountainClimbers","highKnees","jumpingJacks","sprints"],
+      dumbbell: ["dumbbellRow","dumbbellPress","deadlift","dumbbellSquat","lateralRaise","dumbbellCurl","tricepExtension"],
+      kettlebell: ["kettlebellSwing","gobletSquat","snatch","kettlebellPress","kettlebellRow","kettlebellDeadlift","kettlebellLunge"],
+      barbell: ["barbellSquat","deadlift","benchPress","overheadPress","barbellRow","barbellCurl","tricepExtension"] 
     };
     let masterExercises = JSON.parse(localStorage.getItem('masterExercises')||'[]');
     if(!masterExercises.length) masterExercises = defaultsByCategory.bodyweight.slice();
@@ -110,94 +173,123 @@
       renderLibrary(); applyMode();
     }
 
-    function renderGenericPanels(){
-      const mode=document.querySelector('input[name="mode"]:checked').value;
-      const container=document.getElementById('genericPanels');
-      container.innerHTML='';
-      if(mode==='daily'||mode==='two-day'){
-        const count = mode==='daily'?1:2;
-        for(let i=0;i<count;i++){
-          const panel=document.createElement('div');
-          panel.className='day-panel';
-          panel.id='genPanel_'+i;
-          panel.innerHTML=`<h3>${mode==='daily'?'Workout':'Workout Day '+(i+1)}</h3>`;
-          const listDiv=document.createElement('div');
-          masterExercises.forEach(ex=>{
-            const exId='gen_'+i+'_'+ex;
-            const isBW = defaultsByCategory.bodyweight.includes(ex);
-            listDiv.insertAdjacentHTML('beforeend',
-              `<label><input type="checkbox" name="gen_${i}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
-               <div id="${exId}" class="exercise-config">
-                 Sets:<input type="number" name="${ex}_${i}_sets" min="1" value="3"/>
-                 Reps:<input type="number" name="${ex}_${i}_reps" min="1" value="1"/>
-                 ${isBW ?
-                   `Band:<select name="${ex}_${i}_band">
-                      <option value="none">No band</option>
-                      <option value="Light">Light</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Heavy">Heavy</option>
-                      <option value="X-Heavy">X-Heavy</option>
-                    </select>
-                    <select name="${ex}_${i}_bandType">
-                      <option value="Assistance">Assistance</option>
-                      <option value="Resistance">Resistance</option>
-                    </select>` :
-                   `Weight:<input type="number" name="${ex}_${i}_weight" min="0" value="0"/>`
-                 }
-               </div>`
-            );
-          });
-          panel.appendChild(listDiv); container.appendChild(panel);
+    function renderGenericPanels() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const container = document.getElementById('genericPanels');
+      container.innerHTML = '';
+      if (mode === 'daily' || mode === 'two-day') {
+        const count = mode === 'daily' ? 1 : 2;
+        for (let i = 0; i < count; i++) {
+          const panel = document.createElement('div');
+          panel.className = 'card mb-3 shadow-sm';
+          panel.id = 'genPanel_' + i;
+          panel.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title text-center">${mode === 'daily' ? 'Workout' : 'Workout Day ' + (i + 1)}</h5>
+              <div class="row g-3">
+                ${masterExercises.map(ex => {
+                  const exId = 'gen_' + i + '_' + ex;
+                  const isBW = defaultsByCategory.bodyweight.includes(ex);
+                  return `
+                    <div class="col-md-6">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input me-2" name="gen_${i}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}
+                      </label>
+                      <div id="${exId}" class="exercise-config mt-2">
+                        Sets:<input type="number" class="form-control mb-2" name="${ex}_${i}_sets" min="1" value="3"/>
+                        Reps:<input type="number" class="form-control mb-2" name="${ex}_${i}_reps" min="1" value="1"/>
+                        ${isBW ? `
+                          Band:<select class="form-select mb-2" name="${ex}_${i}_band">
+                            <option value="none">No band</option>
+                            <option value="Light">Light</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Heavy">Heavy</option>
+                            <option value="X-Heavy">X-Heavy</option>
+                          </select>
+                          <select class="form-select mb-2" name="${ex}_${i}_bandType">
+                            <option value="Assistance">Assistance</option>
+                            <option value="Resistance">Resistance</option>
+                          </select>` : `
+                          Weight:<input type="number" class="form-control mb-2" name="${ex}_${i}_weight" min="0" value="0"/>`
+                        }
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+          container.appendChild(panel);
         }
       }
     }
 
-    function renderWeekdayList(){
-      const wl=document.getElementById('weekdayList');
-      wl.innerHTML='';
-      days.forEach((day,i)=>{
-        wl.insertAdjacentHTML('beforeend',
-          `<label><input type="checkbox" name="weekday" value="${i}"/> ${capitalize(day)}</label>`
+    function renderWeekdayList() {
+      const wl = document.getElementById('weekdayList');
+      wl.innerHTML = '';
+      wl.className = 'd-flex justify-content-center flex-wrap gap-2'; // Add Bootstrap classes for layout
+      days.forEach((day, i) => {
+        wl.insertAdjacentHTML(
+          'beforeend',
+          `<label class="btn btn-outline-primary">
+            <input type="checkbox" name="weekday" value="${i}" class="form-check-input me-2"/> ${capitalize(day)}
+          </label>`
         );
       });
-      document.querySelectorAll('input[name="weekday"]').forEach(cb=>cb.addEventListener('change',buildWeekdayPanels));
+      document.querySelectorAll('input[name="weekday"]').forEach(cb =>
+        cb.addEventListener('change', buildWeekdayPanels)
+      );
     }
 
-    function buildWeekdayPanels(){
-      const cont=document.getElementById('weekdayPanels');
-      cont.innerHTML='';
-      document.querySelectorAll('input[name="weekday"]:checked').forEach(cb=>{
-        const dayIdx=cb.value;
-        const panel=document.createElement('div');
-        panel.className='day-panel';
-        panel.innerHTML=`<h3>${capitalize(days[dayIdx])}</h3>`;
-        const listDiv=document.createElement('div');
-        masterExercises.forEach(ex=>{
-          const exId=`${ex}_${dayIdx}`;
-          const isBW = defaultsByCategory.bodyweight.includes(ex);
-          listDiv.insertAdjacentHTML('beforeend',
-            `<label><input type="checkbox" name="day_${dayIdx}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}</label>
-             <div id="${exId}" class="exercise-config">
-               Sets:<input type="number" name="${ex}_${dayIdx}_sets" min="1" value="3"/>
-               Reps:<input type="number" name="${ex}_${dayIdx}_reps" min="1" value="1"/>
-               ${isBW ?
-                 `Band:<select name="${ex}_${dayIdx}_band">
-                    <option value="none">No band</option>
-                    <option value="Light">Light</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Heavy">Heavy</option>
-                    <option value="X-Heavy">X-Heavy</option>
-                  </select>
-                  <select name="${ex}_${dayIdx}_bandType">
-                    <option value="Assistance">Assistance</option>
-                    <option value="Resistance">Resistance</option>
-                  </select>` :
-                 `Weight:<input type="number" name="${ex}_${dayIdx}_weight" min="0" value="0"/>`
-               }
-             </div>`
-          );
-        });
-        panel.appendChild(listDiv); cont.appendChild(panel);
+    function buildWeekdayPanels() {
+      const cont = document.getElementById('weekdayPanels');
+      cont.innerHTML = '';
+      document.querySelectorAll('input[name="weekday"]:checked').forEach(cb => {
+        const dayIdx = cb.value;
+        const panel = document.createElement('div');
+        panel.className = 'card mb-3 shadow-sm'; // Use Bootstrap card styling
+        panel.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title text-center">${capitalize(days[dayIdx])}</h5>
+            <div class="row g-3">
+              ${masterExercises
+                .map(ex => {
+                  const exId = `${ex}_${dayIdx}`;
+                  const isBW = defaultsByCategory.bodyweight.includes(ex);
+                  return `
+                    <div class="col-md-6">
+                      <label class="form-check-label">
+                        <input type="checkbox" class="form-check-input me-2" name="day_${dayIdx}" value="${ex}" onchange="toggleConfig('${exId}',this)"/> ${capitalize(ex)}
+                      </label>
+                      <div id="${exId}" class="exercise-config mt-2">
+                        Sets:<input type="number" class="form-control mb-2" name="${ex}_${dayIdx}_sets" min="1" value="3"/>
+                        Reps:<input type="number" class="form-control mb-2" name="${ex}_${dayIdx}_reps" min="1" value="1"/>
+                        ${
+                          isBW
+                            ? `
+                          Band:<select class="form-select mb-2" name="${ex}_${dayIdx}_band">
+                            <option value="none">No band</option>
+                            <option value="Light">Light</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Heavy">Heavy</option>
+                            <option value="X-Heavy">X-Heavy</option>
+                          </select>
+                          <select class="form-select mb-2" name="${ex}_${dayIdx}_bandType">
+                            <option value="Assistance">Assistance</option>
+                            <option value="Resistance">Resistance</option>
+                          </select>`
+                            : `
+                          Weight:<input type="number" class="form-control mb-2" name="${ex}_${dayIdx}_weight" min="0" value="0"/>`
+                        }
+                      </div>
+                    </div>
+                  `;
+                })
+                .join('')}
+            </div>
+          </div>
+        `;
+        cont.appendChild(panel);
       });
     }
 
@@ -291,6 +383,5 @@
 
     window.onload=applyMode;
   </script>
-  <script src="index.js"></script>
 </body>
 </html>

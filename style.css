@@ -1,225 +1,38 @@
-/* General Body Styles */
-body {
-  font-family: sans-serif;
-  background: #f9f9f9;
-  margin: 0;
-  padding: 1rem;
+.collapsible { 
+    max-width: 600px; 
+    margin: 1rem auto; 
+    background: #fff; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+  }
+  .collapsible header { 
+    background: #007bff; 
+    color: #fff; 
+    padding: 0.75rem 1rem; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+  }
+  .collapsible .content { 
+    display: none; 
+    padding: 1rem; 
+  }
+  .collapsible.open .content { 
+    display: block; 
+  }
+
+.exercise-config { 
+  margin-left: 1rem; 
+  display: none; 
+  margin-bottom: 0.5rem; 
 }
 
-/* Header */
-header {
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-header h1 {
-  margin: 0;
-}
-
-/* Collapsible Section Styles */
-.collapsible {
-  max-width: 600px;
-  margin: 1rem auto;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.collapsible header {
-  background: #007bff;
-  color: #fff;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.collapsible .content {
-  display: none;
-  padding: 1rem;
-}
-
-.collapsible.open .content {
-  display: block;
-}
-
-/* Mode Selector and Panels */
-.mode-select,
-.generic-panels,
-.weekday-list,
-#weekdayPanels {
-  max-width: 600px;
-  margin: auto;
-}
-
-.mode-select {
-  text-align: center;
-  padding: 1rem;
-}
-
-.weekday-list {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 0.5rem 0;
-}
-
-.weekday-list label,
-.generic-panels label {
-  width: 30%;
-  display: block;
-  margin: 0.25rem 0;
-}
-
-/* Day Panel Styles */
-.day-panel {
-  background: #eef2f5;
-  margin: 1rem auto;
-  padding: 1rem;
-  border-radius: 8px;
-  max-width: 600px;
-}
-
-/* Exercise Configuration Styles */
-.exercise-config {
-  margin-left: 1rem;
-  display: none;
-  margin-bottom: 0.5rem;
-}
-
-/* Typography */
-h1, h2, h3, h4 {
-  margin: 0.5rem 0;
-}
-h3 {
-  text-align: center;
-}
-
-/* Button Styles */
-button {
-  padding: 0.75rem 1.5rem;
-  margin: 1rem;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-/* Input and Select Styles */
-input[type="number"],
-select {
-  margin-left: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-/* Forms */
-input[type="number"] {
-  width: 4rem;
-}
-
-/* Workout Cards */
-.exercise-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-.sets-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem; /* Increased gap for better spacing */
-  justify-content: center; /* Center items in the card */
-  margin-top: 1rem;
-}
-.set-item {
-  display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center items horizontally */
-  gap: 0.5rem;
-  background: #eef2f5;
-  border-radius: 6px;
-  padding: 1rem;
-  width: 6rem; /* Fixed width for consistent layout */
-}
-
-/* Timer Controls */
-#timerControl {
-  max-width: 600px;
-  margin: 1rem auto;
-  text-align: center;
-  background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-#timerDisplay {
-  font-size: 5rem;
-  font-weight: bold;
-  margin-top: 0.5rem;
-  width: 100%;
-}
-
-/* Max Reps Section */
-#performMaxSection {
-  margin-top: 1rem;
-}
-
-#maxEntrySection {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 5px #ccc;
-  margin-bottom: 1.5rem;
-}
-
-#maxEntrySection.hidden {
-  display: none;
-}
-
-#maxEntryInputs label {
-  display: block;
-  margin: 0.5rem 0;
-}
-
-.no-data {
-  font-style: italic;
-  color: #666;
-  margin: 0.5rem 0;
-}
-
-/* Utility */
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Limit the height of the graphs */
-canvas {
-  max-height: 300px; /* Set a maximum height for the graphs */
-  width: 100%; /* Ensure the graph scales to the card width */
-}
-
-/* Exercise Buttons */
-.exercise-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.exercise-buttons .btn {
-  flex: 1 1 calc(33.333% - 0.5rem); /* Three buttons per row */
-  text-align: center;
-}
-
-.exercise-buttons .btn.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #0056b3;
+.day-panel { 
+  background: #eef2f5; 
+  margin: 1rem auto; 
+  padding: 1rem; 
+  border-radius: 8px; 
+  max-width: 600px; 
 }
