@@ -118,9 +118,9 @@
     const defaultsByCategory = {
       bodyweight: ["pushups","pullups","squats","toeToBar","plank","situps","lunges","dips"],
       cardio: ["running","jumpRope","burpees",  "mountainClimbers","highKnees","jumpingJacks","sprints"],
-      dumbbell: ["dumbbellRow","dumbbellPress","deadlift","dumbbellSquat","lateralRaise","dumbbellCurl","tricepExtension"],
+      dumbbell: ["dumbbellRow","dumbbellPress","dumbellDeadlift","dumbbellSquat","lateralRaise","dumbbellCurl","tricepExtension"],
       kettlebell: ["kettlebellSwing","gobletSquat","snatch","kettlebellPress","kettlebellRow","kettlebellDeadlift","kettlebellLunge"],
-      barbell: ["barbellSquat","deadlift","benchPress","overheadPress","barbellRow","barbellCurl","tricepExtension"] 
+      barbell: ["barbellSquat","deadlift","benchPress","overheadPress","barbellRow","barbellCurl"] 
     };
     let masterExercises = JSON.parse(localStorage.getItem('masterExercises')||'[]');
     if(!masterExercises.length) masterExercises = defaultsByCategory.bodyweight.slice();
