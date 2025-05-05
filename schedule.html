@@ -381,7 +381,87 @@
       window.location.href='index.html';
     });
 
-    window.onload=applyMode;
+        function loadSchedule() {
+      const scheduleStr = localStorage.getItem('workoutSchedule');
+      if (!scheduleStr) return;
+      const schedule = JSON.parse(scheduleStr);
+      const { byDay = {}, config = {} } = schedule;
+
+      // 1) Determine which mode was saved
+      const dayArrays = Object.values(byDay);
+      const first = JSON.stringify(dayArrays[0] || []);
+      const isDaily = dayArrays.every(arr => JSON.stringify(arr) === first);
+      const isTwoDay = dayArrays.every((arr, idx) => {
+        const ref = idx % 2 === 0 ? dayArrays[0] : dayArrays[1];
+        return JSON.stringify(arr) === JSON.stringify(ref);
+      });
+      const mode = isDaily ? 'daily' : (isTwoDay ? 'two-day' : 'manual');
+
+      // 2) Select the correct mode radio & render panels
+      document.querySelector(`input[name="mode"][value="${mode}"]`).checked = true;
+      applyMode();
+
+      // 3a) If daily or two-day, restore generic panels
+      if (mode !== 'manual') {
+        const count = mode === 'daily' ? 1 : 2;
+        for (let i = 0; i < count; i++) {
+          (byDay[i] || []).forEach(ex => {
+            const cb = document.querySelector(`input[name="gen_${i}"][value="${ex}"]`);
+            if (!cb) return;
+            cb.checked = true;
+            toggleConfig(`gen_${i}_${ex}`, cb);
+            const c = config[`${ex}_${i}`];
+            if (c) {
+              document.querySelector(`input[name="${ex}_${i}_sets"]`).value = c.sets;
+              document.querySelector(`input[name="${ex}_${i}_reps"]`).value = c.reps;
+              if (defaultsByCategory.bodyweight.includes(ex)) {
+                document.querySelector(`select[name="${ex}_${i}_band"]`).value = c.band;
+                document.querySelector(`select[name="${ex}_${i}_bandType"]`).value = c.bandType;
+              } else {
+                document.querySelector(`input[name="${ex}_${i}_weight"]`).value = c.weight;
+              }
+            }
+          });
+        }
+      }
+      // 3b) If manual, restore weekday panels
+      else {
+        // check the weekday toggles
+        Object.keys(byDay).forEach(d => {
+          if ((byDay[d] || []).length) {
+            const dayToggle = document.querySelector(`input[name="weekday"][value="${d}"]`);
+            if (dayToggle) dayToggle.checked = true;
+          }
+        });
+        // rebuild panels now that days are checked
+        buildWeekdayPanels();
+
+        // for each day, restore exercise checkboxes & config
+        Object.entries(byDay).forEach(([d, exercises]) => {
+          exercises.forEach(ex => {
+            const cb = document.querySelector(`input[name="day_${d}"][value="${ex}"]`);
+            if (!cb) return;
+            cb.checked = true;
+            toggleConfig(`${ex}_${d}`, cb);
+            const c = config[`${ex}_${d}`];
+            if (c) {
+              document.querySelector(`input[name="${ex}_${d}_sets"]`).value = c.sets;
+              document.querySelector(`input[name="${ex}_${d}_reps"]`).value = c.reps;
+              if (defaultsByCategory.bodyweight.includes(ex)) {
+                document.querySelector(`select[name="${ex}_${d}_band"]`).value = c.band;
+                document.querySelector(`select[name="${ex}_${d}_bandType"]`).value = c.bandType;
+              } else {
+                document.querySelector(`input[name="${ex}_${d}_weight"]`).value = c.weight;
+              }
+            }
+          });
+        });
+      }
+    }
+window.onload = () => {
+   applyMode();
+   loadSchedule();
+ };  
   </script>
 </body>
 </html>
