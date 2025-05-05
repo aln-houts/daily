@@ -381,6 +381,67 @@
       window.location.href='index.html';
     });
 
+      function extractConfigValues(ex, idx) {
+    const prefix = `${ex}_${idx}`;
+    const sets = parseInt(document.querySelector(`input[name="${prefix}_sets"]`).value, 10) || 0;
+    const reps = parseInt(document.querySelector(`input[name="${prefix}_reps"]`).value, 10) || 0;
+    const entry = { sets, reps };
+
+    if (defaultsByCategory.bodyweight.includes(ex)) {
+      entry.band     = document.querySelector(`select[name="${prefix}_band"]`).value;
+      entry.bandType = document.querySelector(`select[name="${prefix}_bandType"]`).value;
+      entry.weight   = '';
+    } else {
+      entry.weight   = document.querySelector(`input[name="${prefix}_weight"]`).value || '';
+      entry.band     = '';
+      entry.bandType = '';
+    }
+    return entry;
+  }
+
+  /**
+   * Scan the current form state into { byDay, config }
+   * and save it to localStorage.
+   */
+  function saveSchedule() {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const byDay = {};
+    const config = {};
+
+    if (mode !== 'manual') {
+      // daily or two-day: generic panels
+      const panels = mode === 'daily' ? [0] : [0,1];
+      panels.forEach(i => {
+        byDay[i] = Array.from(
+          document.querySelectorAll(`input[name="gen_${i}"]:checked`)
+        ).map(cb => cb.value);
+
+        byDay[i].forEach(ex => {
+          config[`${ex}_${i}`] = extractConfigValues(ex, i);
+        });
+      });
+    } else {
+      // manual: weekday panels
+      const days = Array.from(
+        document.querySelectorAll('input[name="weekday"]:checked')
+      ).map(cb => cb.value);
+
+      days.forEach(day => {
+        byDay[day] = Array.from(
+          document.querySelectorAll(`input[name="day_${day}"]:checked`)
+        ).map(cb => cb.value);
+
+        byDay[day].forEach(ex => {
+          config[`${ex}_${day}`] = extractConfigValues(ex, day);
+        });
+      });
+    }
+
+    localStorage.setItem(
+      'workoutSchedule',
+      JSON.stringify({ byDay, config })
+    );
+  }
         function loadSchedule() {
       const scheduleStr = localStorage.getItem('workoutSchedule');
       if (!scheduleStr) return;
@@ -458,6 +519,11 @@
         });
       }
     }
+      // Any time a checkbox, input or select inside #schedule-form changes...
+  document
+    .getElementById('schedule-form')
+    .addEventListener('change', saveSchedule);
+    
 window.onload = () => {
    applyMode();
    loadSchedule();
