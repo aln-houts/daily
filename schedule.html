@@ -381,7 +381,30 @@
       window.location.href='index.html';
     });
 
-    window.onload=applyMode;
-  </script>
+    // 🔍 load and mark your saved schedule
+    const saved = localStorage.getItem('workoutSchedule');
+    if (saved) {
+      try {
+        const sched = JSON.parse(saved);
+        // sched.byDay is an object: { "0": [...], "1": [...], … }
+        Object.entries(sched.byDay || {}).forEach(([dayIdx, exList]) => {
+          exList.forEach(ex => {
+            // find the checkbox for that exercise/day combo
+            const cb = document.querySelector(
+              `input[name="day_${dayIdx}"][value="${ex}"]`
+            );
+            if (cb) {
+              cb.checked = true;
+              // and re-run the toggle logic so the config panel shows up
+              toggleConfig(`${ex}_${dayIdx}`, cb);
+            }
+          });
+        });
+      } catch (e) {
+        console.error('Could not parse saved schedule', e);
+      }
+    }
+  };
+</script>
 </body>
 </html>
